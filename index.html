@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>TuKitRetro CRM</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css"/>
 <style>
-.fi{width:20px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;border-radius:2px}
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .filter-select{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:var(--font);cursor:pointer;outline:none}
 .filter-select:focus{border-color:var(--green2)}
@@ -190,16 +188,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
             <button class="m-btn" onclick="setMonth(11,this)">Dic</button>
           </div>
           <div class="metrics">
-            <div class="metric"><div class="metric-label">Ingresos</div><div class="metric-value g" id="mIng">€0</div><div class="metric-delta" id="mIngD">ventas completadas</div></div>
+            <div class="metric" style="cursor:pointer" onclick="openSalesList()"><div class="metric-label">Ingresos</div><div class="metric-value g" id="mIng">€0</div><div class="metric-delta" id="mIngD" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">ventas completadas</div></div>
             <div class="metric"><div class="metric-label">Coste total</div><div class="metric-value r" id="mCost">€0</div><div class="metric-delta">introducido manualmente</div></div>
             <div class="metric"><div class="metric-label">Margen bruto</div><div class="metric-value g" id="mMargin">€0</div><div class="metric-delta" id="mMarginPct">—</div></div>
             <div class="metric"><div class="metric-label">Artículos activos</div><div class="metric-value a" id="mActivos">0</div><div class="metric-delta">en venta ahora</div></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:24px">
-            <div class="metric"><div class="metric-label">Ticket medio</div><div class="metric-value g" id="mTicket">€0</div><div class="metric-delta" id="mTicketD">por venta completada</div></div>
+            <div class="metric" style="cursor:pointer" onclick="openSalesList()"><div class="metric-label">Ticket medio</div><div class="metric-value g" id="mTicket">€0</div><div class="metric-delta" id="mTicketD" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">por venta completada</div></div>
             <div class="metric"><div class="metric-label">Compradores únicos</div><div class="metric-value g" id="mUnicos">0</div><div class="metric-delta" id="mUnicosD">0% recurrentes</div></div>
             <div class="metric"><div class="metric-label">Margen medio</div><div class="metric-value g" id="mMarginAvg">—</div><div class="metric-delta">por venta con coste</div></div>
-            <div class="metric"><div class="metric-label">Venta más alta</div><div class="metric-value g" id="mTopSale">€0</div><div class="metric-delta" id="mTopSaleTitle">—</div></div>
+            <div class="metric" style="cursor:pointer" id="mTopSaleCard"><div class="metric-label">Venta más alta</div><div class="metric-value g" id="mTopSale">€0</div><div class="metric-delta" id="mTopSaleTitle" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">—</div></div>
           </div>
           <div class="card">
             <div class="card-title">Ingresos por mes <span style="font-size:11px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">Click en leyenda para ocultar</span></div>
@@ -347,13 +345,8 @@ function goPage(name, el) {
 function fmt(n){return '€'+parseFloat(n||0).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:0})}
 function fmtDate(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('es-ES')}catch(e){return'—'}}
 function initials(s){return(s||'?').substring(0,2).toUpperCase()}
-const _flagCache={};
-function flag(code){
-  if(!code||code==='—'||code==='XX')return '🌍';
-  if(_flagCache[code])return _flagCache[code];
-  _flagCache[code]='<span class="fi fi-'+code.toLowerCase()+'" title="'+countryName(code)+'"></span>';
-  return _flagCache[code];
-}
+const FLAG_EMOJIS={ES:'🇪🇸',GB:'🇬🇧',FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',NL:'🇳🇱',BE:'🇧🇪',PT:'🇵🇹',PL:'🇵🇱',US:'🇺🇸',BR:'🇧🇷',MX:'🇲🇽',AR:'🇦🇷',AT:'🇦🇹',CH:'🇨🇭',SE:'🇸🇪',DK:'🇩🇰',NO:'🇳🇴',FI:'🇫🇮',CZ:'🇨🇿',SK:'🇸🇰',HU:'🇭🇺',RO:'🇷🇴',HR:'🇭🇷',GR:'🇬🇷',LU:'🇱🇺',IE:'🇮🇪',AU:'🇦🇺',CA:'🇨🇦',JP:'🇯🇵'};
+function flag(code){return FLAG_EMOJIS[code]||'🌍';}
 
 function isCompleted(o){
   if(o.isCancelled)return false;
@@ -473,6 +466,8 @@ function renderDashboardMetrics(data){
   const topSale = completed.length > 0 ? completed.reduce((a,b)=>(a.price>b.price?a:b)) : null;
   document.getElementById('mTopSale').textContent = topSale ? fmt(topSale.price) : '€0';
   document.getElementById('mTopSaleTitle').textContent = topSale ? topSale.title.substring(0,30)+(topSale.title.length>30?'…':'') : '—';
+  const topCard = document.getElementById('mTopSaleCard');
+  if(topCard) { topCard.onclick = topSale ? function(){openSaleModal(topSale.id);} : null; }
 }
 
 function renderChart(data){
@@ -504,18 +499,19 @@ function renderChart(data){
 
 function renderTopMargen(data){
   const with_cost=(data.orders||[]).filter(o=>isCompleted(o)&&costs[o.id]>0);
-  const sorted=with_cost.map(o=>({title:o.title,price:o.price,cost:costs[o.id],margin:o.price-costs[o.id],pct:Math.round((o.price-costs[o.id])/o.price*100)})).sort((a,b)=>b.pct-a.pct).slice(0,5);
+  const sorted=with_cost.map(o=>({id:o.id,title:o.title,price:o.price,cost:costs[o.id],margin:o.price-costs[o.id],pct:Math.round((o.price-costs[o.id])/o.price*100)})).sort((a,b)=>b.pct-a.pct).slice(0,5);
   const el=document.getElementById('topMargenList');
   if(!sorted.length){el.innerHTML='<div style="color:var(--muted);font-size:12px">Introduce costes en Ventas para ver el margen</div>';return;}
-  el.innerHTML=sorted.map(o=>`
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px">
-        <span style="font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.title}</span>
-        <span style="color:var(--green);font-family:var(--mono);font-size:12px;flex-shrink:0">${fmt(o.margin)} <span style="color:var(--muted)">(${o.pct}%)</span></span>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:3px">Compra: <span style="color:var(--red)">${fmt(o.cost)}</span> · Venta: <span style="color:var(--green)">${fmt(o.price)}</span></div>
-      <div class="pbar"><div class="pbar-fill" style="width:${Math.min(100,o.pct)}%"></div></div>
-    </div>`).join('');
+  el.innerHTML='';
+  sorted.forEach(function(item){
+    const div=document.createElement('div');
+    div.style.cssText='margin-bottom:12px;cursor:pointer;padding:6px;border-radius:6px;transition:background .15s';
+    div.addEventListener('mouseenter',function(){div.style.background='var(--bg3)'});
+    div.addEventListener('mouseleave',function(){div.style.background=''});
+    div.addEventListener('click',function(){openSaleModal(item.id)});
+    div.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px"><span style="font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.title+'</span><span style="color:var(--green);font-family:var(--mono);font-size:12px;flex-shrink:0">'+fmt(item.margin)+' <span style="color:var(--muted)">('+item.pct+'%)</span></span></div><div style="font-size:11px;color:var(--muted);margin-bottom:3px">Compra: <span style="color:var(--red)">'+fmt(item.cost)+'</span> · Venta: <span style="color:var(--green)">'+fmt(item.price)+'</span></div><div class="pbar"><div class="pbar-fill" style="width:'+Math.min(100,item.pct)+'%"></div></div>';
+    el.appendChild(div);
+  });
 }
 
 function renderCountryChart(data){
@@ -746,9 +742,9 @@ function renderCompradores(data){
   document.getElementById('compradoresCount').textContent=buyers.length+' compradores';
   document.getElementById('compradoresList').innerHTML=buyers.length?buyers.map(b=>`
     <div class="buyer-row">
-      <div class="av">${initials(b.login)}</div>
+      <div class="av" style="overflow:hidden;padding:0">${b.photoUrl ? '<img src="'+b.photoUrl+'" style="width:100%;height:100%;object-fit:cover" />' : initials(b.login)}</div>
       <div class="buyer-info">
-        <div class="buyer-name-txt"><a href="${b.url||'#'}" target="_blank" style="color:var(--text);text-decoration:none">${b.login}</a>
+        <div class="buyer-name-txt"><a href="${b.vintedId?'https://www.vinted.es/member/'+b.vintedId:'#'}" target="_blank" style="color:var(--text);text-decoration:none">${b.login}</a>
           <span style="color:var(--muted);font-weight:400;font-size:12px;margin-left:6px">${b.country&&b.country!=='—'?flag(b.country)+' '+countryName(b.country):''}</span></div>
         <div class="buyer-meta">${b.count} compra${b.count>1?'s':''} · Última: ${fmtDate(b.last)}</div>
       </div>
@@ -1020,6 +1016,51 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight') carouselNext();
 });
 
+function openSalesList() {
+  if (!D) return;
+  const orders = filterByPeriod(D.orders||[]).filter(isCompleted);
+  const sorted = [...orders].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const yearLabel = currentYear === -1 ? 'todos los años' : currentYear;
+  const monthLabel = currentMonth === -1 ? '' : ' · ' + ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][currentMonth];
+  document.getElementById('salesListTitle').textContent = 'Ventas completadas — ' + yearLabel + monthLabel + ' (' + sorted.length + ')';
+  const body = document.getElementById('salesListBody');
+  body.innerHTML = '';
+  if (!sorted.length) {
+    body.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px">Sin ventas en este periodo</div>';
+  } else {
+    sorted.forEach(function(o) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s';
+      row.addEventListener('mouseenter',function(){row.style.background='var(--bg3)'});
+      row.addEventListener('mouseleave',function(){row.style.background=''});
+      row.addEventListener('click',function(){ closeSalesList(); openSaleModal(o.id); });
+      const thumb = document.createElement('div');
+      thumb.style.cssText = 'width:48px;height:60px;border-radius:5px;overflow:hidden;flex-shrink:0;background:#111';
+      if (o.photos && o.photos[0]) {
+        const img = document.createElement('img');
+        img.src = o.photos[0];
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain';
+        thumb.appendChild(img);
+      }
+      const info = document.createElement('div');
+      info.style.cssText = 'flex:1;min-width:0';
+      info.innerHTML = '<div style="font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+o.title+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px">'+fmtDate(o.createdAt)+' · '+(o.buyerLogin!=='—'?o.buyerLogin:'—')+' '+(o.buyerCountryCode&&o.buyerCountryCode!=='—'?flag(o.buyerCountryCode):'')+'</div>';
+      const price = document.createElement('div');
+      price.style.cssText = 'font-family:var(--mono);font-weight:600;color:var(--green);font-size:15px;flex-shrink:0';
+      price.textContent = fmt(o.price);
+      row.appendChild(thumb);
+      row.appendChild(info);
+      row.appendChild(price);
+      body.appendChild(row);
+    });
+  }
+  document.getElementById('salesListModal').style.display = 'block';
+}
+
+function closeSalesList() {
+  document.getElementById('salesListModal').style.display = 'none';
+}
+
 function toggleLine(idx){
   vis[idx]=!vis[idx];
   document.getElementById('leg'+idx).classList.toggle('off');
@@ -1058,6 +1099,17 @@ if(raw){
 </script>
 
 
+
+<!-- SALES LIST MODAL -->
+<div id="salesListModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:998;overflow-y:auto;padding:20px">
+  <div style="max-width:700px;margin:0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <div style="padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+      <div id="salesListTitle" style="font-weight:600;font-size:15px">Ventas completadas</div>
+      <button onclick="closeSalesList()" style="background:none;border:none;color:var(--muted2);font-size:24px;cursor:pointer;line-height:1">×</button>
+    </div>
+    <div id="salesListBody" style="padding:0"></div>
+  </div>
+</div>
 <!-- SALE DETAIL MODAL -->
 <div id="saleModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:999;overflow-y:auto;padding:20px">
   <div style="max-width:960px;margin:0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden">
@@ -1072,7 +1124,7 @@ if(raw){
       <div style="padding:20px;background:var(--bg)">
         <!-- Main photo -->
         <div style="position:relative;background:var(--bg3);border-radius:10px;overflow:hidden;margin-bottom:10px;cursor:pointer" onclick="openCarousel(0)" id="saleMainPhoto">
-          <img id="saleMainImg" src="" style="width:100%;height:380px;object-fit:contain;display:block" />
+          <img id="saleMainImg" src="" style="width:100%;height:420px;object-fit:contain;display:block;background:#111" />
         </div>
         <!-- Thumbnails -->
         <div id="saleThumbs" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
