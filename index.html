@@ -1447,5 +1447,729 @@ function invImprimir() {
   printWin.print();
 }
 </script>
+
+<!-- ============================================================
+     MÓVIL — interfaz de app (solo visible en pantallas ≤768px)
+     ============================================================ -->
+<style>
+@media (max-width: 768px) {
+  /* Ocultar toda la interfaz desktop */
+  .app { display: none !important; }
+  #invoiceModal, #saleModal, #salesListModal, #carouselOverlay { display: none !important; }
+
+  /* Mostrar app móvil */
+  #mobileApp { display: flex !important; }
+}
+@media (min-width: 769px) {
+  #mobileApp { display: none !important; }
+}
+
+/* ---- Base app móvil ---- */
+#mobileApp {
+  display: none;
+  flex-direction: column;
+  height: 100dvh;
+  background: #0a0a0a;
+  color: #e8e8e8;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* ---- Topbar móvil ---- */
+#mTopbar {
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 14px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#mTopbar .m-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+#mTopbar .m-logo em { color: #00a000; font-style: normal; }
+#mTopbar .m-sync-info { font-size: 11px; color: #444; }
+#mTopbar .m-sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; display: inline-block; margin-right: 5px; vertical-align: middle; }
+#mTopbar .m-sync-dot.on { background: #00c853; }
+
+/* ---- Contenido scrollable ---- */
+#mContent {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+/* ---- Páginas móvil ---- */
+.m-page { display: none; padding: 16px; }
+.m-page.active { display: block; }
+
+/* ---- Métricas 2x2 ---- */
+.m-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.m-metric {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+}
+.m-metric-label {
+  font-size: 10px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 6px;
+}
+.m-metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  line-height: 1;
+}
+.m-metric-value.g { color: #00c853; }
+.m-metric-value.a { color: #ff9800; }
+.m-metric-value.r { color: #f44336; }
+.m-metric-sub { font-size: 11px; color: #555; margin-top: 5px; }
+
+/* ---- Card sección ---- */
+.m-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.m-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid #1c1c1c;
+}
+
+/* ---- Fila de venta ---- */
+.m-sale-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #1c1c1c;
+  cursor: pointer;
+  transition: background .15s;
+}
+.m-sale-row:last-child { border-bottom: none; }
+.m-sale-row:active { background: #1c1c1c; }
+.m-sale-thumb {
+  width: 44px;
+  height: 56px;
+  border-radius: 6px;
+  background: #1c1c1c;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.m-sale-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.m-sale-info { flex: 1; min-width: 0; }
+.m-sale-title { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-sale-meta { font-size: 11px; color: #555; margin-top: 3px; }
+.m-sale-right { text-align: right; flex-shrink: 0; }
+.m-sale-price { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 14px; color: #00c853; }
+.m-sale-badge { font-size: 10px; margin-top: 4px; }
+
+/* ---- Badges ---- */
+.m-badge { display: inline-flex; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.m-badge.g { background: rgba(0,200,83,.1); color: #00c853; }
+.m-badge.a { background: rgba(255,152,0,.1); color: #ff9800; }
+.m-badge.b { background: rgba(33,150,243,.1); color: #2196f3; }
+.m-badge.p { background: rgba(206,147,216,.15); color: #ce93d8; }
+.m-badge.r { background: rgba(244,67,54,.1); color: #f44336; }
+
+/* ---- Pipeline cards ---- */
+.m-pipe-section { padding: 10px 14px; border-bottom: 1px solid #1c1c1c; }
+.m-pipe-section:last-child { border-bottom: none; }
+.m-pipe-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.m-pipe-item {
+  background: #1c1c1c;
+  border-radius: 8px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+}
+.m-pipe-item:last-child { margin-bottom: 0; }
+.m-pipe-item-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-pipe-item-meta { font-size: 11px; color: #555; display: flex; justify-content: space-between; align-items: center; }
+.m-pipe-price { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; color: #00c853; }
+.m-pipe-empty { font-size: 12px; color: #333; text-align: center; padding: 12px 0; }
+
+/* ---- Oferta card ---- */
+.m-offer-card {
+  padding: 14px;
+  border-bottom: 1px solid #1c1c1c;
+}
+.m-offer-card:last-child { border-bottom: none; }
+.m-offer-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.m-offer-user { font-weight: 600; font-size: 14px; }
+.m-offer-date { font-size: 11px; color: #444; }
+.m-offer-item { font-size: 12px; color: #555; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-offer-pills { display: flex; gap: 8px; margin-bottom: 10px; }
+.m-offer-pill { background: #1c1c1c; border-radius: 8px; padding: 8px 12px; flex: 1; }
+.m-offer-pill-label { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+.m-offer-pill-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 14px; }
+.m-offer-link {
+  display: block;
+  text-align: center;
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 12px;
+  color: #888;
+  text-decoration: none;
+}
+.m-offer-link:active { background: #242424; }
+
+/* ---- Modal detalle venta móvil ---- */
+#mSaleModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #0a0a0a;
+  z-index: 200;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#mSaleModal.open { display: block; }
+.m-modal-header {
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.m-back-btn {
+  background: none;
+  border: none;
+  color: #00a000;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.m-modal-title { font-size: 15px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-sale-photos {
+  display: flex;
+  gap: 6px;
+  padding: 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.m-sale-photos::-webkit-scrollbar { display: none; }
+.m-sale-photo-item {
+  width: 160px;
+  height: 210px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #141414;
+  cursor: pointer;
+}
+.m-sale-photo-item img { width: 100%; height: 100%; object-fit: cover; }
+.m-sale-detail-body { padding: 0 14px 30px; }
+.m-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #1c1c1c;
+  font-size: 13px;
+}
+.m-detail-row:last-child { border-bottom: none; }
+.m-detail-label { color: #555; font-size: 12px; }
+.m-detail-val { font-weight: 500; text-align: right; }
+.m-detail-price { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 20px; color: #00c853; }
+
+/* ---- Nav inferior ---- */
+#mBottomNav {
+  background: #141414;
+  border-top: 1px solid #2a2a2a;
+  display: flex;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.m-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 8px;
+  cursor: pointer;
+  color: #444;
+  font-size: 10px;
+  gap: 4px;
+  transition: color .15s;
+  user-select: none;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.m-nav-item.active { color: #00c853; }
+.m-nav-item svg { width: 22px; height: 22px; }
+.m-nav-badge {
+  position: absolute;
+  top: 6px;
+  right: calc(50% - 16px);
+  background: #ff9800;
+  color: #000;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* ---- Empty state ---- */
+.m-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #333;
+}
+.m-empty p { font-size: 13px; line-height: 1.7; margin-top: 8px; }
+</style>
+
+<div id="mobileApp">
+  <!-- Topbar -->
+  <div id="mTopbar">
+    <div class="m-logo">tu<em>kit</em>retro <span style="font-size:11px;color:#333;font-weight:400;margin-left:4px">CRM</span></div>
+    <div class="m-sync-info">
+      <span class="m-sync-dot" id="mSyncDot"></span>
+      <span id="mSyncText">Sin datos</span>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div id="mContent">
+
+    <!-- DASHBOARD -->
+    <div class="m-page active" id="mPage-dashboard">
+      <div id="mDashEmpty" class="m-empty" style="display:none">
+        <div style="font-size:32px">📱</div>
+        <p>Abre <strong style="color:#e8e8e8">vinted.es</strong> en Chrome,<br>pulsa la extensión TuKitRetro<br>y sincroniza.</p>
+      </div>
+      <div id="mDashContent">
+        <div class="m-metrics">
+          <div class="m-metric">
+            <div class="m-metric-label">Ingresos</div>
+            <div class="m-metric-value g" id="mM-ing">€0</div>
+            <div class="m-metric-sub" id="mM-ingSub">— ventas</div>
+          </div>
+          <div class="m-metric">
+            <div class="m-metric-label">Margen bruto</div>
+            <div class="m-metric-value g" id="mM-margin">€0</div>
+            <div class="m-metric-sub" id="mM-marginSub">—%</div>
+          </div>
+          <div class="m-metric">
+            <div class="m-metric-label">Ticket medio</div>
+            <div class="m-metric-value g" id="mM-ticket">€0</div>
+            <div class="m-metric-sub">por venta</div>
+          </div>
+          <div class="m-metric">
+            <div class="m-metric-label">Activos</div>
+            <div class="m-metric-value a" id="mM-activos">0</div>
+            <div class="m-metric-sub">en venta</div>
+          </div>
+        </div>
+
+        <!-- Ventas recientes -->
+        <div class="m-card">
+          <div class="m-card-title">Ventas recientes</div>
+          <div id="mRecentSales"><div class="m-empty"><p style="color:#333">Sincroniza para ver tus ventas</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENTAS -->
+    <div class="m-page" id="mPage-ventas">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-size:16px;font-weight:600">Ventas</span>
+        <span style="font-size:12px;color:#555" id="mVentasCount">0 ventas</span>
+      </div>
+      <div class="m-card">
+        <div id="mVentasList"><div class="m-empty"><p style="color:#333">Sincroniza para ver tus ventas</p></div></div>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="m-page" id="mPage-pipeline">
+      <div style="font-size:16px;font-weight:600;margin-bottom:4px">Pedidos en curso</div>
+      <div style="font-size:12px;color:#444;margin-bottom:14px">Solo ventas activas</div>
+      <div class="m-card">
+        <div class="m-pipe-section">
+          <div class="m-pipe-header">
+            <span>📦 Preparando</span>
+            <span class="m-badge a" id="mPipePrepCount">0</span>
+          </div>
+          <div id="mPipePrep"><div class="m-pipe-empty">Sin pedidos</div></div>
+        </div>
+        <div class="m-pipe-section">
+          <div class="m-pipe-header">
+            <span>🚚 Enviado</span>
+            <span class="m-badge b" id="mPipeEnvCount">0</span>
+          </div>
+          <div id="mPipeEnv"><div class="m-pipe-empty">Sin pedidos</div></div>
+        </div>
+        <div class="m-pipe-section">
+          <div class="m-pipe-header">
+            <span>📬 Recibido</span>
+            <span class="m-badge p" id="mPipeRecCount">0</span>
+          </div>
+          <div id="mPipeRec"><div class="m-pipe-empty">Sin pedidos</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OFERTAS -->
+    <div class="m-page" id="mPage-ofertas">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-size:16px;font-weight:600">Ofertas recibidas</span>
+        <span style="font-size:12px;color:#ff9800" id="mOfertasCount">0</span>
+      </div>
+      <div class="m-card">
+        <div id="mOfertasList"><div class="m-empty"><p style="color:#333">Sincroniza para ver las ofertas</p></div></div>
+      </div>
+    </div>
+
+  </div><!-- /mContent -->
+
+  <!-- Bottom nav -->
+  <div id="mBottomNav">
+    <div class="m-nav-item active" onclick="mGoPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Inicio
+    </div>
+    <div class="m-nav-item" onclick="mGoPage('ventas',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Ventas
+    </div>
+    <div class="m-nav-item" onclick="mGoPage('pipeline',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="18"/><rect x="10" y="8" width="5" height="13"/><rect x="17" y="5" width="5" height="16"/></svg>
+      Pedidos
+    </div>
+    <div class="m-nav-item" onclick="mGoPage('ofertas',this)" id="mNavOfertas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Ofertas
+      <span class="m-nav-badge" id="mNavBadge" style="display:none">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detalle venta móvil -->
+<div id="mSaleModal">
+  <div class="m-modal-header">
+    <button class="m-back-btn" onclick="mCloseSaleModal()">‹</button>
+    <div class="m-modal-title" id="mModalTitle"></div>
+  </div>
+  <div class="m-sale-photos" id="mModalPhotos"></div>
+  <div class="m-sale-detail-body" id="mModalBody"></div>
+</div>
+
+<script>
+// ---- Navegación móvil ----
+function mGoPage(name, el) {
+  document.querySelectorAll('.m-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.m-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('mPage-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('mContent').scrollTop = 0;
+}
+
+// ---- Helpers ----
+function mFmt(n) { return '€' + parseFloat(n||0).toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function mFmtDate(s) { if(!s) return '—'; try { return new Date(s).toLocaleDateString('es-ES', {day:'2-digit',month:'short'}); } catch(e) { return '—'; } }
+function mFlag(code) {
+  if (!code || code === '—' || code === 'XX') return '';
+  return '<img src="https://flagcdn.com/20x15/' + code.toLowerCase() + '.png" width="16" height="12" style="vertical-align:middle;border-radius:2px;margin-right:3px" />';
+}
+function mStatusBadge(o) {
+  if (o.isCancelled) return '<span class="m-badge r">Cancelado</span>';
+  if (isCompleted(o))  return '<span class="m-badge g">Completado</span>';
+  if (isReceived(o))   return '<span class="m-badge p">Recibido</span>';
+  if (isShipped(o))    return '<span class="m-badge b">Enviado</span>';
+  if (isPreparing(o))  return '<span class="m-badge a">Preparando</span>';
+  const s = (o.status||'—'); return '<span class="m-badge a">' + (s.length>20?s.substr(0,18)+'…':s) + '</span>';
+}
+
+// ---- Render dashboard ----
+function mRenderDashboard(data) {
+  const completed = (data.orders||[]).filter(isCompleted);
+  const totalIng = completed.reduce((s,o) => s+(o.price||0), 0);
+  const totalCost = completed.reduce((s,o) => s+(costs[o.id]||0), 0);
+  const margin = totalIng - totalCost;
+  const marginPct = totalIng > 0 ? Math.round(margin/totalIng*100) : 0;
+  const ticket = completed.length > 0 ? totalIng/completed.length : 0;
+
+  document.getElementById('mM-ing').textContent = mFmt(totalIng);
+  document.getElementById('mM-ingSub').textContent = completed.length + ' ventas';
+  document.getElementById('mM-margin').textContent = mFmt(margin);
+  document.getElementById('mM-marginSub').textContent = marginPct + '% margen';
+  document.getElementById('mM-ticket').textContent = mFmt(ticket);
+  document.getElementById('mM-activos').textContent = (data.items||[]).length;
+
+  // Ventas recientes (últimas 8)
+  const recent = [...completed].sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||'')).slice(0,8);
+  const el = document.getElementById('mRecentSales');
+  if (!recent.length) { el.innerHTML = '<div class="m-empty"><p style="color:#333">Sin ventas completadas</p></div>'; return; }
+  el.innerHTML = '';
+  recent.forEach(function(o) {
+    el.appendChild(mSaleRow(o));
+  });
+}
+
+// ---- Render ventas completas ----
+function mRenderVentas(data) {
+  const sorted = [...(data.orders||[])].sort((a,b) => (b.saleDate||b.createdAt||'').localeCompare(a.saleDate||a.createdAt||''));
+  document.getElementById('mVentasCount').textContent = sorted.length + ' ventas';
+  const el = document.getElementById('mVentasList');
+  if (!sorted.length) { el.innerHTML = '<div class="m-empty"><p style="color:#333">Sin ventas</p></div>'; return; }
+  el.innerHTML = '';
+  sorted.forEach(function(o) { el.appendChild(mSaleRow(o)); });
+}
+
+// ---- Fila de venta (reutilizable) ----
+function mSaleRow(o) {
+  const div = document.createElement('div');
+  div.className = 'm-sale-row';
+  const thumb = document.createElement('div');
+  thumb.className = 'm-sale-thumb';
+  if (o.photos && o.photos[0]) {
+    const img = document.createElement('img');
+    img.src = o.photos[0];
+    img.alt = '';
+    thumb.appendChild(img);
+  }
+  const info = document.createElement('div');
+  info.className = 'm-sale-info';
+  info.innerHTML = '<div class="m-sale-title">' + (o.title||'—') + '</div>' +
+    '<div class="m-sale-meta">' + mFmtDate(o.createdAt||o.saleDate) +
+    (o.buyerLogin && o.buyerLogin!=='—' ? ' · ' + o.buyerLogin : '') +
+    (o.buyerCountryCode && o.buyerCountryCode!=='—' ? ' ' + mFlag(o.buyerCountryCode) : '') + '</div>';
+  const right = document.createElement('div');
+  right.className = 'm-sale-right';
+  right.innerHTML = '<div class="m-sale-price">' + (o.isCancelled ? '<span style="color:#444">—</span>' : mFmt(o.price)) + '</div>' +
+    '<div class="m-sale-badge">' + mStatusBadge(o) + '</div>';
+  div.appendChild(thumb);
+  div.appendChild(info);
+  div.appendChild(right);
+  div.addEventListener('click', function() { mOpenSaleModal(o); });
+  return div;
+}
+
+// ---- Render pipeline ----
+function mRenderPipeline(data) {
+  const inProgress = (data.orders||[]).filter(isInProgress);
+  const prep = inProgress.filter(isPreparing);
+  const shipped = inProgress.filter(isShipped);
+  const received = inProgress.filter(isReceived);
+
+  document.getElementById('mPipePrepCount').textContent = prep.length;
+  document.getElementById('mPipeEnvCount').textContent = shipped.length;
+  document.getElementById('mPipeRecCount').textContent = received.length;
+
+  function renderSection(arr, elId) {
+    const el = document.getElementById(elId);
+    if (!arr.length) { el.innerHTML = '<div class="m-pipe-empty">Sin pedidos</div>'; return; }
+    el.innerHTML = '';
+    arr.forEach(function(o) {
+      const div = document.createElement('div');
+      div.className = 'm-pipe-item';
+      div.innerHTML = '<div class="m-pipe-item-title">' + (o.title||'—') + '</div>' +
+        '<div class="m-pipe-item-meta">' +
+        '<span>' + (o.buyerLogin&&o.buyerLogin!=='—'?o.buyerLogin+' ':'')+mFlag(o.buyerCountryCode) + mFmtDate(o.saleDate||o.createdAt) + '</span>' +
+        '<span class="m-pipe-price">' + mFmt(o.price) + '</span>' +
+        '</div>';
+      div.addEventListener('click', function() { mOpenSaleModal(o); });
+      el.appendChild(div);
+    });
+  }
+  renderSection(prep, 'mPipePrep');
+  renderSection(shipped, 'mPipeEnv');
+  renderSection(received, 'mPipeRec');
+}
+
+// ---- Render ofertas ----
+function mRenderOfertas(data) {
+  const chats = data.offerChats || [];
+  document.getElementById('mOfertasCount').textContent = chats.length + ' ofertas';
+  const badge = document.getElementById('mNavBadge');
+  if (chats.length > 0) { badge.textContent = chats.length; badge.style.display = 'flex'; }
+  else { badge.style.display = 'none'; }
+
+  const el = document.getElementById('mOfertasList');
+  if (!chats.length) { el.innerHTML = '<div class="m-empty"><p style="color:#333">No hay ofertas pendientes 🎉</p></div>'; return; }
+
+  const sColor = s => s==='Aceptada'?'#00c853':s==='Rechazada'?'#f44336':'#ff9800';
+  el.innerHTML = '';
+  chats.forEach(function(t) {
+    const div = document.createElement('div');
+    div.className = 'm-offer-card';
+    div.innerHTML = '<div class="m-offer-top"><div class="m-offer-user">' + t.otherUserLogin + 
+      (t.countryCode&&t.countryCode!=='—' ? ' <span style="font-size:12px;font-weight:400;color:#555">'+mFlag(t.countryCode)+'</span>' : '') +
+      '</div><div class="m-offer-date">' + mFmtDate(t.updatedAt) + '</div></div>' +
+      '<div class="m-offer-item">' + t.itemTitle + '</div>' +
+      '<div class="m-offer-pills">' +
+      '<div class="m-offer-pill"><div class="m-offer-pill-label">Precio</div><div class="m-offer-pill-val">' + mFmt(t.itemPrice) + '</div></div>' +
+      '<div class="m-offer-pill"><div class="m-offer-pill-label">Oferta</div><div class="m-offer-pill-val" style="color:#ff9800">' + mFmt(t.offerPrice) + '</div></div>' +
+      '<div class="m-offer-pill"><div class="m-offer-pill-label">Estado</div><div class="m-offer-pill-val" style="font-size:12px;color:'+sColor(t.offerStatus)+'">' + t.offerStatus + '</div></div>' +
+      '</div>' +
+      '<a href="https://www.vinted.es/inbox/' + t.id + '" target="_blank" class="m-offer-link">Ver conversación en Vinted ↗</a>';
+    el.appendChild(div);
+  });
+}
+
+// ---- Modal detalle venta ----
+function mOpenSaleModal(o) {
+  document.getElementById('mModalTitle').textContent = o.title || '—';
+
+  // Fotos
+  const photosEl = document.getElementById('mModalPhotos');
+  photosEl.innerHTML = '';
+  if (o.photos && o.photos.length > 0) {
+    o.photos.forEach(function(url) {
+      const div = document.createElement('div');
+      div.className = 'm-sale-photo-item';
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = '';
+      div.appendChild(img);
+      photosEl.appendChild(div);
+    });
+  } else {
+    photosEl.innerHTML = '<div style="padding:20px;color:#333;font-size:13px">Sin fotos</div>';
+  }
+
+  // Cuerpo
+  const cost = costs[o.id];
+  const margin = cost ? o.price - cost : null;
+  const marginPct = margin !== null && o.price > 0 ? Math.round(margin/o.price*100) : null;
+
+  const rows = [
+    { label: 'Precio de venta', val: '<span class="m-detail-price">' + (o.isCancelled ? '—' : mFmt(o.price)) + '</span>' },
+    { label: 'Coste', val: cost ? '<span style="color:#f44336;font-family:monospace;font-weight:600">' + mFmt(cost) + '</span>' : '<span style="color:#333">—</span>' },
+    { label: 'Margen', val: margin !== null ? '<span style="color:'+(margin>=0?'#00c853':'#f44336')+';font-family:monospace;font-weight:600">'+mFmt(margin)+(marginPct!==null?' ('+marginPct+'%)':'')+'</span>' : '<span style="color:#333">—</span>' },
+    { label: 'Comprador', val: (o.buyerLogin&&o.buyerLogin!=='—' ? o.buyerLogin : '—') + (o.buyerCountryCode&&o.buyerCountryCode!=='—' ? ' '+mFlag(o.buyerCountryCode) : '') },
+    { label: 'Fecha venta', val: mFmtDate(o.saleDate) },
+    { label: 'Fecha cobro', val: mFmtDate(o.createdAt) },
+    { label: 'Estado', val: mStatusBadge(o) },
+  ];
+
+  const bodyEl = document.getElementById('mModalBody');
+  bodyEl.innerHTML = '';
+  rows.forEach(function(r) {
+    const row = document.createElement('div');
+    row.className = 'm-detail-row';
+    row.innerHTML = '<span class="m-detail-label">' + r.label + '</span><span class="m-detail-val">' + r.val + '</span>';
+    bodyEl.appendChild(row);
+  });
+
+  // Botón ver en Vinted
+  if (o.vintedUrl) {
+    const a = document.createElement('a');
+    a.href = o.vintedUrl;
+    a.target = '_blank';
+    a.className = 'm-offer-link';
+    a.style.marginTop = '16px';
+    a.style.display = 'block';
+    a.textContent = 'Ver artículo en Vinted ↗';
+    bodyEl.appendChild(a);
+  }
+
+  document.getElementById('mSaleModal').classList.add('open');
+  document.getElementById('mSaleModal').scrollTop = 0;
+}
+
+function mCloseSaleModal() {
+  document.getElementById('mSaleModal').classList.remove('open');
+}
+
+// Cerrar modal móvil con botón atrás del navegador
+window.addEventListener('popstate', function() {
+  if (document.getElementById('mSaleModal').classList.contains('open')) {
+    mCloseSaleModal();
+  }
+});
+
+// ---- Render all móvil ----
+function mRenderAll(data) {
+  mRenderDashboard(data);
+  mRenderVentas(data);
+  mRenderPipeline(data);
+  mRenderOfertas(data);
+
+  document.getElementById('mSyncDot').classList.add('on');
+  const d = new Date(data.syncedAt);
+  document.getElementById('mSyncText').textContent = 'Sync ' + d.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+
+  document.getElementById('mDashEmpty').style.display = 'none';
+  document.getElementById('mDashContent').style.display = 'block';
+}
+
+// Escuchar evento de sync de la extensión
+window.addEventListener('tkr_sync', function() {
+  const raw = localStorage.getItem('tkr_data');
+  if (raw) { try { mRenderAll(JSON.parse(raw)); } catch(e) {} }
+});
+
+// Cargar datos al iniciar (si los hay)
+(function mInit() {
+  const raw = localStorage.getItem('tkr_data');
+  if (raw) {
+    try { const d = JSON.parse(raw); mRenderAll(d); return; } catch(e) {}
+  }
+  // Intentar GitHub
+  fetch('https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json', {
+    headers: { 'Accept': 'application/vnd.github.v3+json' }
+  }).then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function(meta) {
+    const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\n/g,''))));
+    const d = JSON.parse(decoded);
+    if (d && d.syncedAt) {
+      loadCosts();
+      localStorage.setItem('tkr_data', JSON.stringify(d));
+      mRenderAll(d);
+    }
+  }).catch(function(e) {
+    document.getElementById('mDashEmpty').style.display = 'block';
+    document.getElementById('mDashContent').style.display = 'none';
+    console.log('Mobile GitHub load failed:', e.message);
+  });
+})();
+</script>
 </body>
 </html>
