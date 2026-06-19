@@ -165,27 +165,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         </div>
         <div id="dash-content">
           <div class="period-bar">
-            <label>Año:</label>
-            <select class="year-select" id="yearSelect" onchange="onPeriodChange()">
-              <option value="-1">Todos</option>
-              <option value="2025">2025</option>
-              <option value="2026" selected>2026</option>
+            <label>Periodo:</label>
+            <select class="year-select" id="periodSelect" onchange="onPeriodChange()">
+              <option value="today">Hoy</option>
+              <option value="7d">Últimos 7 días</option>
+              <option value="30d">Últimos 30 días</option>
+              <option value="month">Este mes</option>
+              <option value="year">Este año</option>
+              <option value="all" selected>Todo</option>
             </select>
-            <span class="period-sep">·</span>
-            <label>Mes:</label>
-            <button class="m-btn active" onclick="setMonth(-1,this)">Todo</button>
-            <button class="m-btn" onclick="setMonth(0,this)">Ene</button>
-            <button class="m-btn" onclick="setMonth(1,this)">Feb</button>
-            <button class="m-btn" onclick="setMonth(2,this)">Mar</button>
-            <button class="m-btn" onclick="setMonth(3,this)">Abr</button>
-            <button class="m-btn" onclick="setMonth(4,this)">May</button>
-            <button class="m-btn" onclick="setMonth(5,this)">Jun</button>
-            <button class="m-btn" onclick="setMonth(6,this)">Jul</button>
-            <button class="m-btn" onclick="setMonth(7,this)">Ago</button>
-            <button class="m-btn" onclick="setMonth(8,this)">Sep</button>
-            <button class="m-btn" onclick="setMonth(9,this)">Oct</button>
-            <button class="m-btn" onclick="setMonth(10,this)">Nov</button>
-            <button class="m-btn" onclick="setMonth(11,this)">Dic</button>
           </div>
           <div class="metrics">
             <div class="metric" style="cursor:pointer" onclick="openSalesList()"><div class="metric-label">Ingresos</div><div class="metric-value g" id="mIng">€0</div><div class="metric-delta" id="mIngD" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">ventas completadas</div></div>
@@ -328,8 +316,22 @@ let costs = {};
 let mainChart = null;
 let countryChart = null;
 const vis = [true,true,true];
-let currentMonth = -1;
-let currentYear = 2026;
+let periodKey = 'all'; // 'today' | '7d' | '30d' | 'month' | 'year' | 'all'
+function getPeriodRange(key){
+  const now = new Date();
+  const startOfDay = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+  let start = null, end = null;
+  if (key === 'today') { start = startOfDay(now); end = now; }
+  else if (key === '7d') { start = startOfDay(now); start.setDate(start.getDate()-6); end = now; }
+  else if (key === '30d') { start = startOfDay(now); start.setDate(start.getDate()-29); end = now; }
+  else if (key === 'month') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = now; }
+  else if (key === 'year') { start = new Date(now.getFullYear(), 0, 1); end = now; }
+  // 'all' -> start=null, end=null (sin filtro)
+  return { start, end };
+}
+function periodLabel(key){
+  return { today:'Hoy', '7d':'Últimos 7 días', '30d':'Últimos 30 días', month:'Este mes', year:'Este año', all:'Todo' }[key] || 'Todo';
+}
 
 const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const FLAGS = {ES:'🇪🇸',GB:'🇬🇧',FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',NL:'🇳🇱',BE:'🇧🇪',PT:'🇵🇹',PL:'🇵🇱',US:'🇺🇸',BR:'🇧🇷',MX:'🇲🇽',AR:'🇦🇷',AT:'🇦🇹',CH:'🇨🇭',SE:'🇸🇪',DK:'🇩🇰',NO:'🇳🇴',FI:'🇫🇮',CZ:'🇨🇿',SK:'🇸🇰',HU:'🇭🇺',RO:'🇷🇴',HR:'🇭🇷',GR:'🇬🇷'};
@@ -384,12 +386,12 @@ function getStatusBadge(o){
 }
 
 function filterByPeriod(orders){
+  const { start, end } = getPeriodRange(periodKey);
+  if (!start) return orders;
   return orders.filter(o=>{
-    if(!o.createdAt)return currentYear===-1&&currentMonth===-1;
+    if(!o.createdAt) return false;
     const d=new Date(o.createdAt);
-    const yearOk=currentYear===-1||d.getFullYear()===currentYear;
-    const monthOk=currentMonth===-1||d.getMonth()===currentMonth;
-    return yearOk&&monthOk;
+    return d>=start && d<=end;
   });
 }
 
@@ -421,16 +423,10 @@ function updateMarginCell(id){
 }
 
 function onPeriodChange(){
-  const sel=document.getElementById('yearSelect');
-  currentYear=parseInt(sel.value);
-  if(D)renderDashboardMetrics(D);
-  if(D)renderChart(D);
-}
-
-function setMonth(idx,btn){
-  document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  currentMonth=idx;
+  const sel=document.getElementById('periodSelect');
+  periodKey=sel.value;
+  const mSel=document.getElementById('mPeriodSelect');
+  if(mSel)mSel.value=periodKey;
   if(D)renderDashboardMetrics(D);
   if(D)renderChart(D);
 }
@@ -474,16 +470,22 @@ function renderDashboardMetrics(data){
 }
 
 function renderChart(data){
-  // For chart: show months of selected year (or all if year=-1)
+  // Gráfica: últimos 12 meses (rolling), independiente del periodo de las métricas
   const completed=(data.orders||[]).filter(isCompleted);
+  const now = new Date();
+  const months = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth(), label: MONTHS[d.getMonth()] + (d.getMonth()===0 ? " '" + String(d.getFullYear()).slice(2) : '') });
+  }
   const ing=Array(12).fill(0),cost=Array(12).fill(0);
   completed.forEach(o=>{
     if(!o.createdAt)return;
     const d=new Date(o.createdAt);
-    if(currentYear!==-1&&d.getFullYear()!==currentYear)return;
-    const m=d.getMonth();
-    ing[m]+=(o.price||0);
-    cost[m]+=(costs[o.id]||0);
+    const idx = months.findIndex(m => m.year === d.getFullYear() && m.month === d.getMonth());
+    if (idx === -1) return;
+    ing[idx]+=(o.price||0);
+    cost[idx]+=(costs[o.id]||0);
   });
   const margin=ing.map((v,i)=>v-cost[i]);
   if(mainChart)mainChart.destroy();
@@ -493,7 +495,7 @@ function renderChart(data){
     {label:'Margen',data:margin,borderColor:'#69f0ae',backgroundColor:'rgba(105,240,174,0.05)',tension:.4,pointRadius:4,borderDash:[2,2]}
   ];
   mainChart=new Chart(document.getElementById('mainChart').getContext('2d'),{
-    type:'line',data:{labels:MONTHS,datasets:allDs.filter((_,i)=>vis[i])},
+    type:'line',data:{labels:months.map(m=>m.label),datasets:allDs.filter((_,i)=>vis[i])},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#141414',borderColor:'#2a2a2a',borderWidth:1,titleColor:'#e8e8e8',bodyColor:'#888',callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y)}}},
       scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555',font:{size:11},callback:v=>fmt(v)}}}}
@@ -1023,9 +1025,7 @@ function openSalesList() {
   if (!D) return;
   const orders = filterByPeriod(D.orders||[]).filter(isCompleted);
   const sorted = [...orders].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  const yearLabel = currentYear === -1 ? 'todos los años' : currentYear;
-  const monthLabel = currentMonth === -1 ? '' : ' · ' + ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][currentMonth];
-  document.getElementById('salesListTitle').textContent = 'Ventas completadas — ' + yearLabel + monthLabel + ' (' + sorted.length + ')';
+  document.getElementById('salesListTitle').textContent = 'Ventas completadas — ' + periodLabel(periodKey) + ' (' + sorted.length + ')';
   const body = document.getElementById('salesListBody');
   body.innerHTML = '';
   if (!sorted.length) {
@@ -1075,28 +1075,13 @@ window.addEventListener('tkr_sync',()=>{
   if(raw){try{renderAll(JSON.parse(raw))}catch(e){}}
 });
 
-// Populate year selector dynamically based on data
-function populateYears(data){
-  const years=new Set();
-  (data.orders||[]).forEach(o=>{if(o.createdAt)years.add(new Date(o.createdAt).getFullYear())});
-  const sel=document.getElementById('yearSelect');
-  const current=sel.value;
-  sel.innerHTML='<option value="-1">Todos</option>';
-  [...years].sort((a,b)=>b-a).forEach(y=>{
-    const opt=document.createElement('option');
-    opt.value=y;opt.textContent=y;
-    if(y===currentYear)opt.selected=true;
-    sel.appendChild(opt);
-  });
-}
-
 loadCosts();
 
 async function loadData() {
   const raw = localStorage.getItem('tkr_data');
   let local = null;
   if (raw) {
-    try { local = JSON.parse(raw); populateYears(local); renderAll(local); } catch(e) {}
+    try { local = JSON.parse(raw); renderAll(local); } catch(e) {}
   }
   // Siempre comprobar GitHub (fuente de verdad), incluso si ya hay localStorage
   try {
@@ -1110,8 +1095,6 @@ async function loadData() {
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
         localStorage.setItem('tkr_data', JSON.stringify(d));
-        loadCosts();
-        populateYears(d);
         renderAll(d);
       }
       return;
@@ -1786,6 +1769,16 @@ function invImprimir() {
         <p>Abre <strong style="color:#e8e8e8">vinted.es</strong> en Chrome,<br>pulsa la extensión TuKitRetro<br>y sincroniza.</p>
       </div>
       <div id="mDashContent">
+        <div style="margin-bottom:14px">
+          <select id="mPeriodSelect" onchange="mOnPeriodChange()" style="width:100%;padding:10px 12px;border-radius:8px;background:#1a1a1a;border:1px solid #2a2a2a;color:#e8e8e8;font-size:13px">
+            <option value="today">Hoy</option>
+            <option value="7d">Últimos 7 días</option>
+            <option value="30d">Últimos 30 días</option>
+            <option value="month">Este mes</option>
+            <option value="year">Este año</option>
+            <option value="all" selected>Todo</option>
+          </select>
+        </div>
         <div class="m-metrics">
           <div class="m-metric">
             <div class="m-metric-label">Ingresos</div>
@@ -1929,8 +1922,13 @@ function mStatusBadge(o) {
 }
 
 // ---- Render dashboard ----
+function mOnPeriodChange(){
+  const sel = document.getElementById('mPeriodSelect');
+  periodKey = sel.value;
+  if (mD) mRenderDashboard(mD);
+}
 function mRenderDashboard(data) {
-  const completed = (data.orders||[]).filter(isCompleted);
+  const completed = filterByPeriod(data.orders||[]).filter(isCompleted);
   const totalIng = completed.reduce((s,o) => s+(o.price||0), 0);
   const totalCost = completed.reduce((s,o) => s+(costs[o.id]||0), 0);
   const margin = totalIng - totalCost;
@@ -2128,7 +2126,9 @@ window.addEventListener('popstate', function() {
 });
 
 // ---- Render all móvil ----
+let mD = null;
 function mRenderAll(data) {
+  mD = data;
   mRenderDashboard(data);
   mRenderVentas(data);
   mRenderPipeline(data);
@@ -2166,7 +2166,6 @@ window.addEventListener('tkr_sync', function() {
     const d = JSON.parse(decoded);
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
-        loadCosts();
         localStorage.setItem('tkr_data', JSON.stringify(d));
         mRenderAll(d);
       }
