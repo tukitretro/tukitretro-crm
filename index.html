@@ -1094,29 +1094,33 @@ loadCosts();
 
 async function loadData() {
   const raw = localStorage.getItem('tkr_data');
+  let local = null;
   if (raw) {
-    try { const d=JSON.parse(raw); populateYears(d); renderAll(d); return; } catch(e) {}
+    try { local = JSON.parse(raw); populateYears(local); renderAll(local); } catch(e) {}
   }
-  // No localStorage - load from GitHub API (mobile)
+  // Siempre comprobar GitHub (fuente de verdad), incluso si ya hay localStorage
   try {
     const res = await fetch('https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json', {
       headers: { 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const meta = await res.json();
-    // GitHub API returns base64 encoded content
     const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\n/g,''))));
     const d = JSON.parse(decoded);
     if (d && d.syncedAt) {
-      localStorage.setItem('tkr_data', JSON.stringify(d));
-      loadCosts();
-      populateYears(d);
-      renderAll(d);
+      if (!local || d.syncedAt !== local.syncedAt) {
+        localStorage.setItem('tkr_data', JSON.stringify(d));
+        loadCosts();
+        populateYears(d);
+        renderAll(d);
+      }
       return;
     }
   } catch(e) { console.log('GitHub load failed:', e.message); }
-  document.getElementById('dash-empty').style.display='block';
-  document.getElementById('dash-content').style.display='none';
+  if (!local) {
+    document.getElementById('dash-empty').style.display='block';
+    document.getElementById('dash-content').style.display='none';
+  }
 }
 
 loadData();
@@ -2147,10 +2151,11 @@ window.addEventListener('tkr_sync', function() {
 // Cargar datos al iniciar (si los hay)
 (function mInit() {
   const raw = localStorage.getItem('tkr_data');
+  let local = null;
   if (raw) {
-    try { const d = JSON.parse(raw); mRenderAll(d); return; } catch(e) {}
+    try { local = JSON.parse(raw); mRenderAll(local); } catch(e) {}
   }
-  // Intentar GitHub
+  // Siempre comprobar GitHub (fuente de verdad), incluso si ya hay localStorage
   fetch('https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json', {
     headers: { 'Accept': 'application/vnd.github.v3+json' }
   }).then(function(res) {
@@ -2160,13 +2165,17 @@ window.addEventListener('tkr_sync', function() {
     const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\n/g,''))));
     const d = JSON.parse(decoded);
     if (d && d.syncedAt) {
-      loadCosts();
-      localStorage.setItem('tkr_data', JSON.stringify(d));
-      mRenderAll(d);
+      if (!local || d.syncedAt !== local.syncedAt) {
+        loadCosts();
+        localStorage.setItem('tkr_data', JSON.stringify(d));
+        mRenderAll(d);
+      }
     }
   }).catch(function(e) {
-    document.getElementById('mDashEmpty').style.display = 'block';
-    document.getElementById('mDashContent').style.display = 'none';
+    if (!local) {
+      document.getElementById('mDashEmpty').style.display = 'block';
+      document.getElementById('mDashContent').style.display = 'none';
+    }
     console.log('Mobile GitHub load failed:', e.message);
   });
 })();
