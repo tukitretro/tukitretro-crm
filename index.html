@@ -632,6 +632,22 @@ function renderVentasRows(sorted, tbody){
 
     // Article
     const tdArt=document.createElement('td');
+    const wrap=document.createElement('div');
+    wrap.style.display='flex';
+    wrap.style.alignItems='center';
+    wrap.style.gap='10px';
+    if(o.photos&&o.photos[0]){
+      const thumb=document.createElement('img');
+      thumb.src=o.photos[0];
+      thumb.style.width='36px';
+      thumb.style.height='36px';
+      thumb.style.objectFit='cover';
+      thumb.style.borderRadius='6px';
+      thumb.style.flexShrink='0';
+      thumb.style.mixBlendMode='multiply';
+      thumb.style.background='var(--bg)';
+      wrap.appendChild(thumb);
+    }
     const div=document.createElement('div');
     div.className='shirt-name';
     div.textContent=o.title;
@@ -639,7 +655,9 @@ function renderVentasRows(sorted, tbody){
     div.style.textDecoration='underline';
     div.style.textDecorationColor='var(--border2)';
     div.addEventListener('click',function(){ openSaleModal(o.id); });
-    tdArt.appendChild(div);
+    wrap.appendChild(div);
+    wrap.addEventListener('click',function(){ openSaleModal(o.id); });
+    tdArt.appendChild(wrap);
     tr.appendChild(tdArt);
 
     // Buyer
