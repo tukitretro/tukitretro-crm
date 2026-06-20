@@ -618,8 +618,33 @@ function renderVentas(data){
   renderVentasFiltered(data.orders||[]);
 }
 
-function renderVentasRows(sorted, tbody){
+function renderThumbNoWhite(url,canvas){
+  const img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=function(){
+    const size=36;
+    const ctx=canvas.getContext('2d');
+    const scale=Math.max(size/img.width,size/img.height);
+    const sw=size/scale, sh=size/scale;
+    const sx=(img.width-sw)/2, sy=(img.height-sh)/2;
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,size,size);
+    try{
+      const imgData=ctx.getImageData(0,0,size,size);
+      const d=imgData.data;
+      for(let i=0;i<d.length;i+=4){
+        const r=d[i],g=d[i+1],b=d[i+2];
+        const minC=Math.min(r,g,b);
+        if(minC>235){ d[i+3]=0; }
+        else if(minC>200){ d[i+3]=Math.round((d[i+3]||255)*((235-minC)/35)); }
+      }
+      ctx.putImageData(imgData,0,0);
+    }catch(e){}
+  };
+  img.onerror=function(){ canvas.style.display='none'; };
+  img.src=url;
+}
 
+function renderVentasRows(sorted, tbody){
   sorted.forEach(function(o){
     // Ensure stable ID - use transactionId as fallback
     if(!o.id || o.id==='undefined') o.id = String(o.transactionId || o.conversationId || Math.random());
@@ -638,16 +663,20 @@ function renderVentasRows(sorted, tbody){
     wrap.style.alignItems='center';
     wrap.style.gap='10px';
     if(o.photos&&o.photos[0]){
-      const thumb=document.createElement('img');
-      thumb.src=o.photos[0];
-      thumb.style.width='36px';
-      thumb.style.height='36px';
-      thumb.style.objectFit='cover';
-      thumb.style.borderRadius='6px';
-      thumb.style.flexShrink='0';
-      thumb.style.mixBlendMode='multiply';
-      thumb.style.background='var(--bg)';
-      wrap.appendChild(thumb);
+      const thumbWrap=document.createElement('div');
+      thumbWrap.style.width='36px';
+      thumbWrap.style.height='36px';
+      thumbWrap.style.flexShrink='0';
+      thumbWrap.style.borderRadius='6px';
+      thumbWrap.style.overflow='hidden';
+      thumbWrap.style.background='var(--bg)';
+      const canvas=document.createElement('canvas');
+      canvas.width=36;canvas.height=36;
+      canvas.style.width='36px';canvas.style.height='36px';
+      canvas.style.display='block';
+      thumbWrap.appendChild(canvas);
+      wrap.appendChild(thumbWrap);
+      renderThumbNoWhite(o.photos[0],canvas);
     }
     const div=document.createElement('div');
     div.className='shirt-name';
