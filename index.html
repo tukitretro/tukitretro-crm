@@ -183,7 +183,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:24px">
             <div class="metric" style="cursor:pointer" onclick="openSalesList()"><div class="metric-label">Ticket medio</div><div class="metric-value g" id="mTicket">€0</div><div class="metric-delta" id="mTicketD" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">por venta completada</div></div>
-            <div class="metric"><div class="metric-label">Compradores únicos</div><div class="metric-value g" id="mUnicos">0</div><div class="metric-delta" id="mUnicosD">0% recurrentes</div></div>
+            <div class="metric"><div class="metric-label">Ganancias estimadas</div><div class="metric-value g" id="mUnicos">€0</div><div class="metric-delta" id="mUnicosD">en artículos activos</div></div>
             <div class="metric"><div class="metric-label">Margen medio</div><div class="metric-value g" id="mMarginAvg">—</div><div class="metric-delta">por venta con coste</div></div>
             <div class="metric" style="cursor:pointer" id="mTopSaleCard"><div class="metric-label">Venta más alta</div><div class="metric-value g" id="mTopSale">€0</div><div class="metric-delta" id="mTopSaleTitle" style="color:var(--green2);text-decoration:underline;text-underline-offset:3px">—</div></div>
           </div>
@@ -455,8 +455,9 @@ function renderDashboardMetrics(data){
   const totalBuyers = Object.keys(buyerCounts).length;
   const recurrentes = Object.values(buyerCounts).filter(v=>v>1).length;
   const recPct = totalBuyers > 0 ? Math.round(recurrentes/totalBuyers*100) : 0;
-  document.getElementById('mUnicos').textContent = totalBuyers;
-  document.getElementById('mUnicosD').textContent = recPct + '% recurrentes';
+  const estGains = (data.items||[]).reduce((s,i)=>s+(i.price||0),0);
+  document.getElementById('mUnicos').textContent = fmt(estGains);
+  document.getElementById('mUnicosD').textContent = (data.items||[]).length + ' artículos';
   // Margen medio
   const withCost = completed.filter(o => costs[o.id] > 0);
   const avgMargin = withCost.length > 0 ? Math.round(withCost.reduce((s,o)=>(s+(o.price-costs[o.id])/o.price*100),0)/withCost.length) : null;
