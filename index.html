@@ -425,26 +425,8 @@ function filterByPeriod(orders){
   });
 }
 
-function saveCosts(){
-  localStorage.setItem('tkr_costs',JSON.stringify(costs));
-  clearTimeout(window._costsSyncTimer);
-  window._costsSyncTimer=setTimeout(syncCostsToGithub,1200);
-}
+function saveCosts(){localStorage.setItem('tkr_costs',JSON.stringify(costs))}
 function loadCosts(){try{costs=JSON.parse(localStorage.getItem('tkr_costs')||'{}')}catch(e){costs={}}}
-const GH_TOKEN='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';
-async function syncCostsToGithub(){
-  try{
-    const API='https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json';
-    const r=await fetch(API,{headers:{'Authorization':'token '+GH_TOKEN,'Accept':'application/vnd.github.v3+json'}});
-    if(!r.ok)return;
-    const j=await r.json();
-    const remote=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g,'')))));
-    remote.costs=costs;
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(remote))));
-    await fetch(API,{method:'PUT',headers:{'Authorization':'token '+GH_TOKEN,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify({message:'update costs',content,sha:j.sha})});
-    localStorage.setItem('tkr_data',JSON.stringify(remote));
-  }catch(e){}
-}
 
 function initCostListeners(){ /* uses inline onchange now */ }
 function onCostChange(id, val){
@@ -763,16 +745,16 @@ function openArticuloModal(i){
   modal.style.position='fixed';modal.style.inset='0';modal.style.background='rgba(0,0,0,.7)';modal.style.zIndex='1000';
   modal.style.display='flex';modal.style.alignItems='center';modal.style.justifyContent='center';
   modal.innerHTML=`
-    <div style="background:var(--bg2);border-radius:14px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;padding:0">
+    <div style="background:var(--bg2);border-radius:14px;max-width:900px;width:94%;max-height:92vh;overflow-y:auto;padding:0">
       <div style="display:flex;justify-content:flex-end;padding:10px 14px 0">
-        <span style="cursor:pointer;color:var(--muted);font-size:20px" id="aModalClose">×</span>
+        <span style="cursor:pointer;color:var(--muted);font-size:24px" id="aModalClose">×</span>
       </div>
-      <div style="padding:0 20px 20px">
-        <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;background:#fff;border-radius:10px;padding:8px">
-          ${photos.length?photos.map(p=>`<img src="${p}" style="height:220px;border-radius:8px;flex-shrink:0;object-fit:contain">`).join(''):'<span style="color:#999;padding:40px;font-size:13px">Sin fotos</span>'}
+      <div style="padding:0 24px 24px">
+        <div style="display:flex;gap:10px;overflow-x:auto;margin-bottom:18px;background:#fff;border-radius:10px;padding:10px">
+          ${photos.length?photos.map(p=>`<img src="${p}" class="aThumb" data-full="${p}" style="height:340px;border-radius:8px;flex-shrink:0;object-fit:contain;cursor:zoom-in">`).join(''):'<span style="color:#999;padding:40px;font-size:13px">Sin fotos</span>'}
         </div>
-        <div style="font-size:16px;font-weight:600;margin-bottom:8px">${i.title||''}</div>
-        <div style="display:flex;gap:16px;font-size:13px;color:var(--muted2)">
+        <div style="font-size:18px;font-weight:600;margin-bottom:10px">${i.title||''}</div>
+        <div style="display:flex;gap:16px;font-size:14px;color:var(--muted2)">
           <span>Precio: <b style="color:var(--green)">${fmt(i.price)}</b></span>
           ${i.size?`<span>Talla: <b>${i.size}</b></span>`:''}
           ${i.brand?`<span>Marca: <b>${i.brand}</b></span>`:''}
@@ -787,6 +769,16 @@ function openArticuloModal(i){
   document.body.appendChild(modal);
   modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.remove(); });
   modal.querySelector('#aModalClose').addEventListener('click',()=>modal.remove());
+  modal.querySelectorAll('.aThumb').forEach(img=>{
+    img.addEventListener('click',()=>{
+      const zoom=document.createElement('div');
+      zoom.style.position='fixed';zoom.style.inset='0';zoom.style.background='rgba(0,0,0,.92)';zoom.style.zIndex='1100';
+      zoom.style.display='flex';zoom.style.alignItems='center';zoom.style.justifyContent='center';zoom.style.cursor='zoom-out';
+      zoom.innerHTML=`<img src="${img.dataset.full}" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:6px">`;
+      zoom.addEventListener('click',()=>zoom.remove());
+      document.body.appendChild(zoom);
+    });
+  });
 }
 
 function renderVentasRows(sorted, tbody){
