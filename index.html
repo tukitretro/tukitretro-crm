@@ -151,6 +151,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ofertas recibidas
         <span class="nav-badge" id="chatBadge" style="display:none">0</span>
       </div>
+      <div class="nav-item" onclick="goPage('articulos',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/></svg>Artículos
+      </div>
       <div class="nav-section">Sistema</div>
       <div class="nav-item" onclick="goPage('config',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configuración
@@ -245,6 +248,31 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
             <thead><tr><th>Artículo</th><th>Comprador</th><th>País</th><th>Fecha cobro</th><th>Precio venta</th><th>Coste</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
             <tbody id="ventasBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Sincroniza para ver tus ventas</td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- ARTICULOS -->
+      <div class="page" id="page-articulos">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <span style="font-size:16px;font-weight:600">Artículos</span>
+          <span style="font-size:12px;color:var(--muted)" id="articulosCount">0 artículos</span>
+        </div>
+        <div class="filter-bar">
+          <span class="filter-label">Buscar:</span>
+          <input class="filter-input" type="text" id="aSearch" placeholder="Título..." oninput="applyArticulosFilters()" style="width:200px" />
+          <span class="filter-label">Talla:</span>
+          <select class="filter-select" id="aSize" onchange="applyArticulosFilters()">
+            <option value="">Todas</option>
+          </select>
+          <span class="filter-label">Precio:</span>
+          <input class="filter-input" type="number" id="aPriceMin" placeholder="Min €" oninput="applyArticulosFilters()" />
+          <span style="color:var(--muted)">—</span>
+          <input class="filter-input" type="number" id="aPriceMax" placeholder="Max €" oninput="applyArticulosFilters()" />
+          <button class="filter-clear" onclick="clearArticulosFilters()">Limpiar</button>
+          <span style="font-size:12px;color:var(--muted)" id="articulosFilterCount"></span>
+        </div>
+        <div id="articulosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px">
+          <div style="text-align:center;color:var(--muted);padding:30px;font-size:13px;grid-column:1/-1">Sincroniza para ver tus artículos</div>
         </div>
       </div>
 
@@ -403,7 +431,7 @@ function saveCosts(){
   window._costsSyncTimer=setTimeout(syncCostsToGithub,1200);
 }
 function loadCosts(){try{costs=JSON.parse(localStorage.getItem('tkr_costs')||'{}')}catch(e){costs={}}}
-const GH_TOKEN='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';
+const GH_TOKEN='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';
 async function syncCostsToGithub(){
   try{
     const API='https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json';
@@ -663,6 +691,104 @@ function renderThumbNoWhite(url,canvas){
   img.src=url;
 }
 
+let articulosData = [];
+function renderArticulos(data){
+  articulosData = data.items || [];
+  const sizes = new Set();
+  articulosData.forEach(i=>{ if(i.size) sizes.add(i.size); });
+  const sel = document.getElementById('aSize');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todas</option>';
+  [...sizes].sort().forEach(s=>{
+    const o=document.createElement('option'); o.value=s; o.textContent=s;
+    if(s===cur)o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById('articulosCount').textContent = articulosData.length + ' artículos';
+  applyArticulosFilters();
+}
+function clearArticulosFilters(){
+  document.getElementById('aSearch').value='';
+  document.getElementById('aSize').value='';
+  document.getElementById('aPriceMin').value='';
+  document.getElementById('aPriceMax').value='';
+  applyArticulosFilters();
+}
+function applyArticulosFilters(){
+  const q=(document.getElementById('aSearch').value||'').toLowerCase();
+  const size=document.getElementById('aSize').value;
+  const min=parseFloat(document.getElementById('aPriceMin').value)||0;
+  const max=parseFloat(document.getElementById('aPriceMax').value)||Infinity;
+  const filtered=articulosData.filter(i=>{
+    if(q && !(i.title||'').toLowerCase().includes(q))return false;
+    if(size && i.size!==size)return false;
+    if(i.price<min || i.price>max)return false;
+    return true;
+  });
+  document.getElementById('articulosFilterCount').textContent = filtered.length+' resultados';
+  renderArticulosGrid(filtered);
+}
+function renderArticulosGrid(items){
+  const grid=document.getElementById('articulosGrid');
+  grid.innerHTML='';
+  if(items.length===0){
+    grid.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px;font-size:13px;grid-column:1/-1">Sin resultados</div>';
+    return;
+  }
+  items.forEach(i=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.padding='0';
+    card.style.overflow='hidden';
+    card.style.cursor='pointer';
+    const photo = (i.photos&&i.photos[0]) || i.photo || '';
+    card.innerHTML = `
+      <div style="width:100%;aspect-ratio:3/4;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover">` : `<span style="color:#ccc;font-size:12px">Sin foto</span>`}
+      </div>
+      <div style="padding:10px">
+        <div style="font-size:12px;font-weight:500;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.title||''}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:14px;font-weight:700;color:var(--green)">${fmt(i.price)}</span>
+          ${i.size?`<span style="font-size:11px;color:var(--muted)">${i.size}</span>`:''}
+        </div>
+      </div>`;
+    card.addEventListener('click',()=>openArticuloModal(i));
+    grid.appendChild(card);
+  });
+}
+function openArticuloModal(i){
+  const photos = (i.photos&&i.photos.length?i.photos:(i.photo?[i.photo]:[]));
+  const modal=document.createElement('div');
+  modal.style.position='fixed';modal.style.inset='0';modal.style.background='rgba(0,0,0,.7)';modal.style.zIndex='1000';
+  modal.style.display='flex';modal.style.alignItems='center';modal.style.justifyContent='center';
+  modal.innerHTML=`
+    <div style="background:var(--bg2);border-radius:14px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;padding:0">
+      <div style="display:flex;justify-content:flex-end;padding:10px 14px 0">
+        <span style="cursor:pointer;color:var(--muted);font-size:20px" id="aModalClose">×</span>
+      </div>
+      <div style="padding:0 20px 20px">
+        <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;background:#fff;border-radius:10px;padding:8px">
+          ${photos.length?photos.map(p=>`<img src="${p}" style="height:220px;border-radius:8px;flex-shrink:0;object-fit:contain">`).join(''):'<span style="color:#999;padding:40px;font-size:13px">Sin fotos</span>'}
+        </div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:8px">${i.title||''}</div>
+        <div style="display:flex;gap:16px;font-size:13px;color:var(--muted2)">
+          <span>Precio: <b style="color:var(--green)">${fmt(i.price)}</b></span>
+          ${i.size?`<span>Talla: <b>${i.size}</b></span>`:''}
+          ${i.brand?`<span>Marca: <b>${i.brand}</b></span>`:''}
+        </div>
+        <div style="display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:8px">
+          <span>👁 ${i.views||0} visitas</span>
+          <span>♥ ${i.favourites||0} favoritos</span>
+        </div>
+        ${i.path?`<a href="https://www.vinted.es${i.path}" target="_blank" style="display:inline-block;margin-top:14px;color:var(--green);font-size:13px;text-decoration:underline">Ver en Vinted →</a>`:''}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.remove(); });
+  modal.querySelector('#aModalClose').addEventListener('click',()=>modal.remove());
+}
+
 function renderVentasRows(sorted, tbody){
   sorted.forEach(function(o){
     // Ensure stable ID - use transactionId as fallback
@@ -913,6 +1039,7 @@ function renderAll(data){
   renderCompradores(data);
   renderPipeline(data);
   renderChats(data);
+  renderArticulos(data);
   document.getElementById('connBadge').classList.add('ok');
   document.getElementById('pulseDot').classList.add('on');
   document.getElementById('connText').textContent='Vinted sincronizado';
