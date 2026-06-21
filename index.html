@@ -5,6 +5,7 @@
 <meta name="robots" content="noindex, nofollow"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>TuKitRetro CRM</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAD0klEQVR4nO1VS0hkVxA9Vbffsx3bP/4GPxHtSBuHiTjRMUFlDKLGjiAiCEFEYhjMIhACKiMoYgiuxJCFqBBBTQJZuchG1IUgCO6cRAJ+aI0Ior1o063ddvteZdGJJv4XmZ1nd6vqnVOnbnEf8IAH/N8gIovFcmOarxwJUAC94bbuBSICkJWV1draqmkaMyulzrPMzI+Yy5iiCAAYUOBnTI+ZXhAlEuguH2G6pqYmEbkiDgCIBf3ElPk3DVlJfW7hFwq/EL3Dlz/5B5fH7fP5gsHg6urq0tJSUlJSZ2fn9vY2BL2vei3plt69XmVYTDboS6bfSXwCFhwAn4CI6QeYv5lgwLwgvKzMzEQ0Ozu7s7PT1NQUHR0djj8veV76fimCUCGmLwjJYq4Y8oEgGmBgD/hV8CcA4L/+Lwvouu73+zs7OycnJ4PB4OnpqVJKKXV0dHTiP8Ep0Aq8DflaxCc4Bc4ADZgV+VHMP8y7BY6Pj2NiYjRNC4VCuq5HRkYahmEYRnJycug0xDqbHwqNk3iFbAQBQoACpd5jT4mIiGw2297e3vz8vN1uX1xcXF9fr6ur6+npEZGalhp8A9Vj4e8U5TIsoO+Zcpm/YppmrmGKvWuXmBmAw+FYW1sbHh6OiYmZm5sLBAJut/vlpy8pinJ+tj9KjdI+1tS3SntP04Z0eouUVentujapq2fquqFc8XFTKtee6w8GUh+nAdBiNegAwNoFH1nuNygAVVVVtbW1AIqKirq6utra2iIiItLT040zY2RkpP2zdgBPHE/aWtsAPH33aferbmed8/b+LkbU398vIt3d3Y2NjV6vd2VlZXd3d2FhweFwHJ8cu1yusbGx2o9qRWRmZqahoUFENjc3RWR0dPSc5Eb2vLw8Eamvr2fmk5OTtbW1jo6OwcFBEZment7f37fb7QA8Hs/Q0BCAw8PDvr4+ACUlJSJSWFh4o0b4qWhoaPD5fACys7NF5PXr11tbW6urq8vLy1NTU16vNycnx2q1ikh+fn5EREQgEMjIyAgzuFyulpaWc6rrBerr6z0ej9Vq1XXd7XaPj49rmlZQUJCZmamUOjg4mJiYSEtL8/v9paWlRORyuSYmJmw2W3Nzs4iE/d3moLGx0TTNqKgoAJWVlUdHR16vV0QGBgYAlJeXezyejY2Ns7OziooKAGVlZeEa0zS7urpuu4PwAqSkpFRXV58XJSQkOJ3O4uLi8BsFID4+vry8vKamJi4uLlyTmJjodDodDgfu3KJLuNrL7ZFre78sSETMbBjGv48ArkZM0wz/OcIRETFNEw94wBvAXy/ld7ECk9ufAAAAAElFTkSuQmCC">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
@@ -203,7 +204,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           </div>
           <div class="g2">
             <div class="card">
-              <div class="card-title">Top artículos por margen</div>
+              <div class="card-title">Top artículos por precio de venta</div>
               <div id="topMargenList"><div style="color:var(--muted);font-size:12px">Introduce costes en Ventas para ver el margen</div></div>
             </div>
             <div class="card">
@@ -534,10 +535,10 @@ function renderChart(data){
 }
 
 function renderTopMargen(data){
-  const with_cost=(data.orders||[]).filter(o=>isCompleted(o)&&costs[o.id]>0);
-  const sorted=with_cost.map(o=>({id:o.id,title:o.title,price:o.price,cost:costs[o.id],margin:o.price-costs[o.id],pct:Math.round((o.price-costs[o.id])/o.price*100)})).sort((a,b)=>b.pct-a.pct).slice(0,5);
+  const completed=(data.orders||[]).filter(isCompleted);
+  const sorted=completed.map(o=>({id:o.id,title:o.title,price:o.price})).sort((a,b)=>b.price-a.price).slice(0,5);
   const el=document.getElementById('topMargenList');
-  if(!sorted.length){el.innerHTML='<div style="color:var(--muted);font-size:12px">Introduce costes en Ventas para ver el margen</div>';return;}
+  if(!sorted.length){el.innerHTML='<div style="color:var(--muted);font-size:12px">Aún no hay ventas completadas</div>';return;}
   el.innerHTML='';
   sorted.forEach(function(item){
     const div=document.createElement('div');
@@ -545,7 +546,7 @@ function renderTopMargen(data){
     div.addEventListener('mouseenter',function(){div.style.background='var(--bg3)'});
     div.addEventListener('mouseleave',function(){div.style.background=''});
     div.addEventListener('click',function(){openSaleModal(item.id)});
-    div.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px"><span style="font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.title+'</span><span style="color:var(--green);font-family:var(--mono);font-size:12px;flex-shrink:0">'+fmt(item.margin)+' <span style="color:var(--muted)">('+item.pct+'%)</span></span></div><div style="font-size:11px;color:var(--muted);margin-bottom:3px">Compra: <span style="color:var(--red)">'+fmt(item.cost)+'</span> · Venta: <span style="color:var(--green)">'+fmt(item.price)+'</span></div><div class="pbar"><div class="pbar-fill" style="width:'+Math.min(100,item.pct)+'%"></div></div>';
+    div.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.title+'</span><span style="color:var(--green);font-family:var(--mono);font-size:13px;flex-shrink:0;font-weight:600">'+fmt(item.price)+'</span></div>';
     el.appendChild(div);
   });
 }
@@ -1054,6 +1055,17 @@ function openSaleModal(orderId) {
   // Title
   document.getElementById('saleModalTitle').textContent = o.title;
 
+  // Bundle breakdown (lotes)
+  const bundleEl = document.getElementById('saleModalBundle');
+  if (o.itemTitles && o.itemTitles.length > 1) {
+    bundleEl.style.display = 'block';
+    bundleEl.innerHTML = '<div style="font-weight:600;color:var(--text);margin-bottom:6px">Artículos del lote (' + o.itemTitles.length + ')</div>' +
+      o.itemTitles.map((it, idx) => '<div style="padding:3px 0">' + (idx+1) + '. ' + (it.title||'—') + '</div>').join('');
+  } else {
+    bundleEl.style.display = 'none';
+    bundleEl.innerHTML = '';
+  }
+
   // Main photo
   const mainImg = document.getElementById('saleMainImg');
   if (currentSalePhotos.length > 0) {
@@ -1333,6 +1345,8 @@ loadData();
       <div style="padding:24px;border-left:1px solid var(--border);display:flex;flex-direction:column;gap:16px">
         <!-- Title -->
         <div id="saleModalTitle" style="font-size:16px;font-weight:600;color:var(--text);line-height:1.4"></div>
+        <!-- Bundle breakdown -->
+        <div id="saleModalBundle" style="display:none;font-size:12px;color:var(--muted2);background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px"></div>
         <!-- Price stats -->
         <div id="saleModalStats" style="display:flex;flex-direction:column;gap:10px"></div>
         <!-- Buyer -->
@@ -1484,13 +1498,22 @@ function openInvoice(orderId) {
     document.getElementById('inv_c_cp').value = '';
   }
 
-  // Fill article
-  const rows = document.querySelectorAll('#inv_articulos .inv-art-row');
-  rows.forEach((r,i) => { if (i>0) r.remove(); });
-  const inputs = document.querySelectorAll('#inv_articulos .inv-art-row')[0].querySelectorAll('input');
-  inputs[0].value = order.title;
-  inputs[1].value = '1';
-  inputs[2].value = order.price % 1 === 0 ? order.price.toFixed(2) : order.price.toFixed(2);
+  // Fill article(s) — desglosa lotes en una fila por artículo
+  const rows0 = document.querySelectorAll('#inv_articulos .inv-art-row');
+  rows0.forEach((r,i) => { if (i>0) r.remove(); });
+  const items = (order.itemTitles && order.itemTitles.length > 1) ? order.itemTitles : [{ title: order.title }];
+  const n = items.length;
+  const basePrice = Math.floor((order.price/n)*100)/100;
+  const remainder = Math.round((order.price - basePrice*n)*100)/100;
+  items.forEach((it, idx) => {
+    if (idx > 0) invAddFila();
+    const row = document.querySelectorAll('#inv_articulos .inv-art-row')[idx];
+    const inputs = row.querySelectorAll('input');
+    inputs[0].value = it.title || order.title;
+    inputs[1].value = '1';
+    const price = idx === n-1 ? basePrice + remainder : basePrice;
+    inputs[2].value = price.toFixed(2);
+  });
   invCalcTotal();
 
   document.getElementById('inv-form').style.display = 'block';
