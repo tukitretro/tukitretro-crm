@@ -780,9 +780,10 @@ function ebayExportBtnStyle(state){
   return base+'background:var(--bg3);border-color:var(--border2);color:var(--text)';
 }
 function ebaySuggestedPrice(vintedPrice){
-  // Precios eBay suelen ser más altos que Vinted; sugerencia simple +40%, redondeado a .99
-  const p = (parseFloat(vintedPrice)||0) * 1.4;
-  return Math.max(1, Math.floor(p)) + 0.99 > p ? Math.floor(p)-0.01+1 : Math.ceil(p)-0.01;
+  const raw = (parseFloat(vintedPrice)||0) * 1.25;
+  // Redondear hacia arriba al siguiente "X4,99" o "X9,99" (intervalos de 5€)
+  const rounded5 = Math.ceil(raw / 5) * 5;
+  return rounded5 - 0.01;
 }
 
 function openEbayExportModal(i, artId){
