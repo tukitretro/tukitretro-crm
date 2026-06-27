@@ -1528,6 +1528,16 @@ loadData();
       <div style="color:#e8e8e8;font-weight:600;font-size:15px">Generar factura REBU</div>
       <button onclick="closeInvoice()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer">✕</button>
     </div>
+
+    <div id="inv-quickstep" style="padding:40px 30px;background:#f5f5f5;text-align:center">
+      <div style="font-size:13px;color:#555;margin-bottom:14px">Número de factura</div>
+      <input id="inv_num_quick" style="width:200px;text-align:center;font-size:18px;font-weight:700;border:1px solid #ccc;border-radius:8px;padding:10px;color:#222" />
+      <div style="margin-top:20px">
+        <button class="inv-btn inv-btn-outline" onclick="closeInvoice()" style="margin-right:10px">Cancelar</button>
+        <button class="inv-btn inv-btn-primary" onclick="invQuickConfirm()">Generar factura →</button>
+      </div>
+    </div>
+
     <div style="padding:20px;background:#f5f5f5">
 
       <div id="inv-form">
@@ -1659,8 +1669,9 @@ function openInvoice(orderId) {
   rows0.forEach((r,i) => { if (i>0) r.remove(); });
   const items = (order.itemTitles && order.itemTitles.length > 1) ? order.itemTitles : [{ title: order.title }];
   const n = items.length;
-  const basePrice = Math.floor((order.price/n)*100)/100;
-  const remainder = Math.round((order.price - basePrice*n)*100)/100;
+  const realPrice = (typeof order.salePrice === 'number' && order.salePrice > 0) ? order.salePrice : order.price;
+  const basePrice = Math.floor((realPrice/n)*100)/100;
+  const remainder = Math.round((realPrice - basePrice*n)*100)/100;
   items.forEach((it, idx) => {
     if (idx > 0) invAddFila();
     const row = document.querySelectorAll('#inv_articulos .inv-art-row')[idx];
@@ -1672,9 +1683,17 @@ function openInvoice(orderId) {
   });
   invCalcTotal();
 
-  document.getElementById('inv-form').style.display = 'block';
+  document.getElementById('inv-form').style.display = 'none';
   document.getElementById('inv-preview').style.display = 'none';
+  document.getElementById('inv-quickstep').style.display = 'block';
+  document.getElementById('inv_num_quick').value = document.getElementById('inv_num').value;
   document.getElementById('invoiceModal').style.display = 'block';
+}
+
+function invQuickConfirm() {
+  document.getElementById('inv_num').value = document.getElementById('inv_num_quick').value;
+  document.getElementById('inv-quickstep').style.display = 'none';
+  invGenerar();
 }
 
 function closeInvoice() {
