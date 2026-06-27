@@ -1630,7 +1630,18 @@ loadData();
 
 <script>
 let currentInvoiceOrder = null;
+if (!localStorage.getItem('tkr_inv_num')) localStorage.setItem('tkr_inv_num', '54');
 let invNum = parseInt(localStorage.getItem('tkr_inv_num') || '1');
+function tkrGetInvoices() { try { return JSON.parse(localStorage.getItem('tkr_invoices')||'{}'); } catch(e) { return {}; } }
+function tkrNextInvoiceNum(year) {
+  const invs = tkrGetInvoices();
+  let max = 0;
+  Object.values(invs).forEach(v => {
+    const m = String(v).match(/(\d{4})-(\d+)/);
+    if (m && parseInt(m[1])===year) { const n = parseInt(m[2]); if (n>max) max = n; }
+  });
+  return Math.max(max, parseInt(localStorage.getItem('tkr_inv_num')||'0')) + 1;
+}
 
 function openInvoice(orderId) {
   if (!D) return;
@@ -1640,7 +1651,7 @@ function openInvoice(orderId) {
 
   // Set invoice number
   const year = new Date().getFullYear();
-  document.getElementById('inv_num').value = `${year}-${String(invNum).padStart(3,'0')}`;
+  document.getElementById('inv_num').value = `${year}-${String(tkrNextInvoiceNum(year)).padStart(3,'0')}`;
 
   // Invoice date = fecha de venta (saleDate), not fecha de cobro
   const invoiceDate = order.saleDate || order.createdAt;
@@ -1803,8 +1814,13 @@ function invGenerar() {
   document.getElementById('inv-preview').style.display = 'block';
 
   // Save invoice number
-  invNum++;
-  localStorage.setItem('tkr_inv_num', invNum);
+  if (currentInvoiceOrder) {
+    const invs = tkrGetInvoices();
+    invs[String(currentInvoiceOrder.id)] = fNum;
+    localStorage.setItem('tkr_invoices', JSON.stringify(invs));
+  }
+  const m = String(fNum).match(/(\d+)$/);
+  if (m) localStorage.setItem('tkr_inv_num', String(parseInt(m[1])));
 }
 
 function invVolver() {
