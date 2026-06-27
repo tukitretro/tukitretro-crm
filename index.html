@@ -375,7 +375,7 @@ function goPage(name, el) {
   document.getElementById('page-'+name).classList.add('active');
   if(el) el.classList.add('active');
 }
-function fmt(n){return '€'+parseFloat(n||0).toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function fmt(n){return '€'+parseFloat(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function fmtDate(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('es-ES')}catch(e){return'—'}}
 function initials(s){return(s||'?').substring(0,2).toUpperCase()}
 function flag(code){
@@ -2293,7 +2293,7 @@ function mGoPage(name, el) {
 }
 
 // ---- Helpers ----
-function mFmt(n) { return '€' + parseFloat(n||0).toLocaleString('es-ES', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function mFmt(n) { return '€' + parseFloat(n||0).toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 function mFmtDate(s) { if(!s) return '—'; try { return new Date(s).toLocaleDateString('es-ES', {day:'2-digit',month:'short'}); } catch(e) { return '—'; } }
 function mFlag(code) {
   if (!code || code === '—' || code === 'XX') return '';
