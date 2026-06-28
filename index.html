@@ -1506,15 +1506,18 @@ async function syncEbaySales(){
     data.orders.forEach(eo=>{
       const id = 'ebay-'+eo.orderId;
       if(existingIds.has(id)) return;
+      const firstItem = (eo.items&&eo.items[0])||{};
       d.orders.push({
         id: id,
-        title: (eo.titles&&eo.titles[0])||'Venta eBay',
-        price: eo.subtotal||eo.total||0,
+        title: firstItem.title || (eo.titles&&eo.titles[0]) || 'Venta eBay',
+        price: firstItem.price || eo.subtotal || eo.total || 0,
         status: 'Completado',
         platform: 'ebay',
         date: eo.createdTime,
         buyer: eo.buyerUserID||'',
-        sku: (eo.skus&&eo.skus[0])||''
+        sku: firstItem.sku || (eo.skus&&eo.skus[0]) || '',
+        photo: (eo.photos&&eo.photos[0])||'',
+        photos: eo.photos||[]
       });
       added++;
     });
@@ -1544,8 +1547,13 @@ async function loadData() {
     const d = JSON.parse(decoded);
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
+        const localCosts = JSON.parse(localStorage.getItem('tkr_costs')||'{}');
         localStorage.setItem('tkr_data', JSON.stringify(d));
-        if (d.costs) { costs = d.costs; localStorage.setItem('tkr_costs', JSON.stringify(costs)); }
+        if (d.costs) {
+          const merged = Object.assign({}, d.costs, localCosts);
+          costs = merged;
+          localStorage.setItem('tkr_costs', JSON.stringify(costs));
+        }
         renderAll(d);
       }
       return;
@@ -2663,8 +2671,13 @@ window.addEventListener('tkr_sync', function() {
     const d = JSON.parse(decoded);
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
+        const localCosts = JSON.parse(localStorage.getItem('tkr_costs')||'{}');
         localStorage.setItem('tkr_data', JSON.stringify(d));
-        if (d.costs) { costs = d.costs; localStorage.setItem('tkr_costs', JSON.stringify(costs)); }
+        if (d.costs) {
+          const merged = Object.assign({}, d.costs, localCosts);
+          costs = merged;
+          localStorage.setItem('tkr_costs', JSON.stringify(costs));
+        }
         mRenderAll(d);
       }
     }
