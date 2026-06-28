@@ -820,6 +820,49 @@ function openEbayExportModal(i, artId){
         </div>
       </div>
 
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Categoría eBay</label>
+      <select id="ebCategory" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)">
+        <option value="179228" data-club-label="Spanish Club">Clubes españoles</option>
+        <option value="179214" data-club-label="Club">Clubes internacionales</option>
+        <option value="123620" data-club-label="Country/Region">Selecciones nacionales</option>
+        <option value="112897" data-club-label="Club">Otros</option>
+      </select>
+
+      <label id="ebClubLabel" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Spanish Club</label>
+      <input id="ebClub" type="text" value="" placeholder="Ej: Barcelona, Real Madrid..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
+
+      <div style="display:flex;gap:12px;margin-bottom:14px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Kit Type</label>
+          <select id="ebKitType" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
+            <option value="Home">Home</option>
+            <option value="Away">Away</option>
+            <option value="Third">Third</option>
+            <option value="Goalkeeper">Goalkeeper</option>
+            <option value="Training">Training</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Country/Region</label>
+          <input id="ebCountry" type="text" value="" placeholder="Ej: Spain, England..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:14px">
+        <input id="ebMatchWorn" type="checkbox" style="display:none">
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Sleeve Length</label>
+          <select id="ebSleeve" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
+            <option value="Short Sleeves">Short Sleeves</option>
+            <option value="Long Sleeves">Long Sleeves</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Main Colour</label>
+          <input id="ebColour" type="text" value="" placeholder="Ej: Blue, Multi..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+        </div>
+      </div>
+
       <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Marca</label>
       <input id="ebBrand" type="text" value="${i.brand||''}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
 
@@ -839,6 +882,13 @@ function openEbayExportModal(i, artId){
   modal.querySelector('#ebCancelBtn').addEventListener('click',close);
   modal.addEventListener('click',(e)=>{ if(e.target===modal) close(); });
 
+  const catSelect = modal.querySelector('#ebCategory');
+  const clubLabel = modal.querySelector('#ebClubLabel');
+  catSelect.addEventListener('change', ()=>{
+    const opt = catSelect.options[catSelect.selectedIndex];
+    clubLabel.textContent = opt.dataset.clubLabel;
+  });
+
   modal.querySelector('#ebConfirmBtn').addEventListener('click', async ()=>{
     const confirmBtn = modal.querySelector('#ebConfirmBtn');
     const statusEl = modal.querySelector('#ebModalStatus');
@@ -854,7 +904,14 @@ function openEbayExportModal(i, artId){
       brand: modal.querySelector('#ebBrand').value,
       description: modal.querySelector('#ebDesc').value,
       photos: photos,
-      sku: 'TKR-' + artId
+      sku: 'TKR-' + artId,
+      categoryId: modal.querySelector('#ebCategory').value,
+      clubLabel: catSelect.options[catSelect.selectedIndex].dataset.clubLabel,
+      club: modal.querySelector('#ebClub').value,
+      kitType: modal.querySelector('#ebKitType').value,
+      country: modal.querySelector('#ebCountry').value,
+      sleeveLength: modal.querySelector('#ebSleeve').value,
+      mainColour: modal.querySelector('#ebColour').value
     };
 
     try{
