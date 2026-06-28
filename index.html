@@ -1488,7 +1488,42 @@ function toggleLine(idx){
 window.addEventListener('tkr_sync',()=>{
   const raw=localStorage.getItem('tkr_data');
   if(raw){try{renderAll(JSON.parse(raw))}catch(e){}}
+  syncEbaySales();
 });
+
+async function syncEbaySales(){
+  try{
+    const res = await fetch(EBAY_BRIDGE_URL+'/sales?days=90');
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data.success || !Array.isArray(data.orders)) return;
+    const raw = localStorage.getItem('tkr_data');
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    d.orders = d.orders || [];
+    const existingIds = new Set(d.orders.map(o=>String(o.id)));
+    let added = 0;
+    data.orders.forEach(eo=>{
+      const id = 'ebay-'+eo.orderId;
+      if(existingIds.has(id)) return;
+      d.orders.push({
+        id: id,
+        title: (eo.titles&&eo.titles[0])||'Venta eBay',
+        price: eo.subtotal||eo.total||0,
+        status: 'Completado',
+        platform: 'ebay',
+        date: eo.createdTime,
+        buyer: eo.buyerUserID||'',
+        sku: (eo.skus&&eo.skus[0])||''
+      });
+      added++;
+    });
+    if(added>0){
+      localStorage.setItem('tkr_data', JSON.stringify(d));
+      renderAll(d);
+    }
+  }catch(e){ console.log('eBay sync failed:', e.message); }
+}
 
 loadCosts();
 
