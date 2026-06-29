@@ -237,6 +237,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           <select class="filter-select" id="fCountry" onchange="applyFilters()">
             <option value="">Todos los países</option>
           </select>
+          <select class="filter-select" id="fPlatform" onchange="applyFilters()">
+            <option value="">Todas las plataformas</option>
+            <option value="vinted">Vinted</option>
+            <option value="ebay">eBay</option>
+          </select>
           <span class="filter-label">Precio:</span>
           <input class="filter-input" type="number" id="fPriceMin" placeholder="Min €" onchange="applyFilters()" />
           <span style="color:var(--muted)">—</span>
@@ -246,7 +251,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         </div>
         <div class="card" style="padding:0;overflow:hidden">
           <table class="tbl">
-            <thead><tr><th>Artículo</th><th>Comprador</th><th>País</th><th>Fecha cobro</th><th>Precio venta</th><th>Coste</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Artículo</th><th>Comprador</th><th>País</th><th>Plataforma</th><th>Fecha cobro</th><th>Precio venta</th><th>Coste</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
             <tbody id="ventasBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Sincroniza para ver tus ventas</td></tr></tbody>
           </table>
         </div>
@@ -592,6 +597,7 @@ function populateCountryFilter(data) {
 function getFilteredOrders(orders) {
   const status = document.getElementById('fStatus')?.value || '';
   const country = document.getElementById('fCountry')?.value || '';
+  const platform = document.getElementById('fPlatform')?.value || '';
   const priceMin = parseFloat(document.getElementById('fPriceMin')?.value || '') || null;
   const priceMax = parseFloat(document.getElementById('fPriceMax')?.value || '') || null;
 
@@ -604,6 +610,10 @@ function getFilteredOrders(orders) {
       if (status === 'cancelado' && !o.isCancelled) return false;
     }
     if (country && o.buyerCountryCode !== country) return false;
+    if (platform) {
+      const op = o.platform || 'vinted';
+      if (op !== platform) return false;
+    }
     if (priceMin !== null && o.price < priceMin) return false;
     if (priceMax !== null && o.price > priceMax) return false;
     return true;
@@ -1069,6 +1079,15 @@ function renderVentasRows(sorted, tbody){
     }
     tr.appendChild(tdCountry);
 
+    // Platform
+    const tdPlatform=document.createElement('td');
+    if(o.platform==='ebay'){
+      tdPlatform.innerHTML='<img src="https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-color-web_24x24.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px"><span style="color:var(--muted2);vertical-align:middle">eBay</span>';
+    } else {
+      tdPlatform.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><rect width="24" height="24" rx="4" fill="#09B1BA"/><text x="12" y="17" font-size="14" fill="white" text-anchor="middle" font-family="Arial,sans-serif">V</text></svg><span style="color:var(--muted2);vertical-align:middle">Vinted</span>';
+    }
+    tr.appendChild(tdPlatform);
+
     // Date - createdAt = fecha cobro (payment released), saleDate = fecha venta
     const tdDate=document.createElement('td');
     tdDate.style.color='var(--muted2)';
@@ -1514,7 +1533,7 @@ async function syncEbaySales(){
         shippingCost: eo.shippingCost || 0,
         status: 'Completado',
         platform: 'ebay',
-        createdAt: eo.createdTime,
+        createdAt: eo.releasedTime || eo.createdTime,
         saleDate: eo.createdTime,
         buyerLogin: eo.buyerUserID || '—',
         buyerCountryCode: (eo.shippingAddress && eo.shippingAddress.countryCode) || '—',
@@ -1797,6 +1816,15 @@ function openInvoice(orderId) {
     const price = idx === n-1 ? basePrice + remainder : basePrice;
     inputs[2].value = price.toFixed(2);
   });
+  if (order.platform === 'ebay' && order.shippingCost > 0) {
+    invAddFila();
+    const shipRows = document.querySelectorAll('#inv_articulos .inv-art-row');
+    const shipRow = shipRows[shipRows.length - 1];
+    const shipInputs = shipRow.querySelectorAll('input');
+    shipInputs[0].value = 'Envío';
+    shipInputs[1].value = '1';
+    shipInputs[2].value = order.shippingCost.toFixed(2);
+  }
   invCalcTotal();
 
   document.getElementById('inv-form').style.display = 'none';
