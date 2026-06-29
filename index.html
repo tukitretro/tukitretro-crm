@@ -1082,7 +1082,7 @@ function renderVentasRows(sorted, tbody){
     // Platform
     const tdPlatform=document.createElement('td');
     if(o.platform==='ebay'){
-      tdPlatform.innerHTML='<img src="https://ir.ebaystatic.com/cr/v/c1/ebay-logo-1-color-web_24x24.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px"><span style="color:var(--muted2);vertical-align:middle">eBay</span>';
+      tdPlatform.innerHTML='<svg width="14" height="14" viewBox="0 0 100 40" style="vertical-align:middle;margin-right:4px"><text x="0" y="30" font-family="Arial,sans-serif" font-weight="bold" font-size="34"><tspan fill="#E53238">e</tspan><tspan fill="#0064D2">b</tspan><tspan fill="#F5AF02">a</tspan><tspan fill="#86B817">y</tspan></text></svg><span style="color:var(--muted2);vertical-align:middle">eBay</span>';
     } else {
       tdPlatform.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><rect width="24" height="24" rx="4" fill="#09B1BA"/><text x="12" y="17" font-size="14" fill="white" text-anchor="middle" font-family="Arial,sans-serif">V</text></svg><span style="color:var(--muted2);vertical-align:middle">Vinted</span>';
     }
@@ -1533,10 +1533,11 @@ async function syncEbaySales(){
         shippingCost: eo.shippingCost || 0,
         status: 'Completado',
         platform: 'ebay',
-        createdAt: eo.releasedTime || eo.createdTime,
+        createdAt: eo.createdTime ? new Date(new Date(eo.createdTime).getTime() + 14*24*60*60*1000).toISOString() : null,
         saleDate: eo.createdTime,
         buyerLogin: eo.buyerUserID || '—',
         buyerCountryCode: (eo.shippingAddress && eo.shippingAddress.countryCode) || '—',
+        invoiceData: eo.invoiceData || null,
         sku: firstItem.sku || (eo.skus&&eo.skus[0]) || '',
         photo: (eo.photos&&eo.photos[0])||'',
         photos: eo.photos||[]
