@@ -763,7 +763,8 @@ function renderArticulosGrid(items){
 const EBAY_BRIDGE_URL = 'https://tukitretro-ebay-bridge.tukitretro.workers.dev';
 
 function getArticuloId(i){
-  return i.id || i.path || i.title;
+  const stableKey = (i.title || '').trim().toLowerCase();
+  return stableKey || i.id || i.path || i.title;
 }
 function getEbayExportMap(){
   try { return JSON.parse(localStorage.getItem('tkr_ebay_exports')||'{}'); } catch(e){ return {}; }
@@ -1549,6 +1550,26 @@ async function syncEbaySales(){
       renderAll(d);
     }
   }catch(e){ console.log('eBay sync failed:', e.message); }
+  try{
+    const res2 = await fetch(EBAY_BRIDGE_URL+'/active-titles');
+    if(!res2.ok) return;
+    const data2 = await res2.json();
+    if(!data2.success || !data2.titleCounts) return;
+    const counts = Object.assign({}, data2.titleCounts);
+    const raw2 = localStorage.getItem('tkr_data');
+    if(!raw2) return;
+    const d2 = JSON.parse(raw2);
+    const map = getEbayExportMap();
+    (d2.items||[]).forEach(i=>{
+      const key = (i.title||'').trim().toLowerCase();
+      if(counts[key] && counts[key] > 0){
+        map[getArticuloId(i)] = 'exported';
+        counts[key]--;
+      }
+    });
+    localStorage.setItem('tkr_ebay_exports', JSON.stringify(map));
+    renderAll(d2);
+  }catch(e){ console.log('eBay active-titles sync failed:', e.message); }
 }
 
 loadCosts();
