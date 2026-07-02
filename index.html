@@ -917,7 +917,7 @@ function openEbayExportModal(i, artId){
       brand: modal.querySelector('#ebBrand').value,
       description: modal.querySelector('#ebDesc').value,
       photos: photos,
-      sku: 'TKR-' + artId,
+      sku: ('TKR-' + artId).slice(0, 50),
       categoryId: modal.querySelector('#ebCategory').value,
       clubLabel: catSelect.options[catSelect.selectedIndex].dataset.clubLabel,
       club: modal.querySelector('#ebClub').value,
