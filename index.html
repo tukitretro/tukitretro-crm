@@ -827,9 +827,8 @@ function openEbayExportModal(i, artId){
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Talla</label>
-          <select id="ebSize" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
-            <option value="${(i.size||'').replace(/"/g,'&quot;')}">${(i.size||'Cargando...')}</option>
-          </select>
+          <input id="ebSize" type="text" list="ebSizeList" value="${(i.size||'').replace(/"/g,'&quot;')}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          <datalist id="ebSizeList"></datalist>
         </div>
       </div>
 
@@ -844,26 +843,25 @@ function openEbayExportModal(i, artId){
       </select>
 
       <label id="ebClubLabel" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Spanish Club</label>
-      <select id="ebClub" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)">
-        <option value="">Cargando...</option>
-      </select>
+      <input id="ebClub" type="text" list="ebClubList" value="" placeholder="Ej: Barcelona, Real Madrid..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
+      <datalist id="ebClubList"></datalist>
 
       <div style="display:flex;gap:12px;margin-bottom:14px">
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Kit Type</label>
-          <select id="ebKitType" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
-            <option value="Home">Home</option>
-            <option value="Away">Away</option>
-            <option value="Third">Third</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Training">Training</option>
-          </select>
+          <input id="ebKitType" type="text" list="ebKitTypeList" value="" placeholder="Ej: Home, Away..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          <datalist id="ebKitTypeList">
+            <option value="Home"></option>
+            <option value="Away"></option>
+            <option value="Third"></option>
+            <option value="Goalkeeper"></option>
+            <option value="Training"></option>
+          </datalist>
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">País de origen</label>
-          <select id="ebCountry" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
-            <option value="">Cargando...</option>
-          </select>
+          <input id="ebCountry" type="text" list="ebCountryList" value="" placeholder="Ej: Spain, England..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          <datalist id="ebCountryList"></datalist>
         </div>
       </div>
 
@@ -871,16 +869,16 @@ function openEbayExportModal(i, artId){
         <input id="ebMatchWorn" type="checkbox" style="display:none">
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Sleeve Length</label>
-          <select id="ebSleeve" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
-            <option value="Short Sleeves">Short Sleeves</option>
-            <option value="Long Sleeves">Long Sleeves</option>
-          </select>
+          <input id="ebSleeve" type="text" list="ebSleeveList" value="" placeholder="Ej: Short Sleeves..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          <datalist id="ebSleeveList">
+            <option value="Short Sleeves"></option>
+            <option value="Long Sleeves"></option>
+          </datalist>
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Color</label>
-          <select id="ebColour" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)">
-            <option value="">Cargando...</option>
-          </select>
+          <input id="ebColour" type="text" list="ebColourList" value="" placeholder="Ej: Blue, Multi..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          <datalist id="ebColourList"></datalist>
         </div>
       </div>
 
@@ -973,28 +971,27 @@ async function loadEbayAspects(modal, categoryId){
     'ebColour': ['Color'],
     'ebCountry': ['País de origen'],
   };
-  Object.keys(fieldMap).forEach(id=>{
-    const el = modal.querySelector('#'+id);
-    if(el && el.tagName==='SELECT'){ el.innerHTML = '<option value="">Cargando...</option>'; }
-  });
+  let statusEl = modal.querySelector('#ebAspectsStatus');
+  if(!statusEl){
+    statusEl = document.createElement('div');
+    statusEl.id = 'ebAspectsStatus';
+    statusEl.style.cssText = 'font-size:11px;color:var(--muted);margin:-8px 0 10px';
+    modal.querySelector('#ebCategory').insertAdjacentElement('afterend', statusEl);
+  }
+  statusEl.textContent = 'Cargando valores de eBay...';
   try{
     const res = await fetch(EBAY_BRIDGE_URL+'/aspects?categoryId='+encodeURIComponent(categoryId));
     const data = await res.json();
-    if(!data.success) throw new Error(data.message||'Error al cargar aspectos');
+    if(!data.success) throw new Error(data.message || JSON.stringify(data));
     Object.entries(fieldMap).forEach(([id, aspectNames])=>{
-      const el = modal.querySelector('#'+id);
-      if(!el || el.tagName!=='SELECT') return;
+      const listEl = modal.querySelector('#'+id+'List');
+      if(!listEl) return;
       const aspect = data.aspects.find(a=>aspectNames.includes(a.name));
-      const currentVal = el.value;
-      el.innerHTML = '<option value="">— Selecciona —</option>' +
-        (aspect ? aspect.values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('') : '');
-      if(currentVal && aspect && aspect.values.includes(currentVal)) el.value = currentVal;
+      listEl.innerHTML = aspect ? aspect.values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}"></option>`).join('') : '';
     });
+    statusEl.textContent = '';
   }catch(e){
-    Object.keys(fieldMap).forEach(id=>{
-      const el = modal.querySelector('#'+id);
-      if(el && el.tagName==='SELECT') el.innerHTML = '<option value="">— No disponible, escribe manualmente en Descripción —</option>';
-    });
+    statusEl.textContent = 'No se pudieron cargar los valores de eBay (' + (e.message||e) + '). Puedes escribir el valor a mano.';
   }
 }
 
