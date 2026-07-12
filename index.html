@@ -880,7 +880,27 @@ function openEbayExportModal(i, artId){
       </div>
 
       <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Marca</label>
-      <input id="ebBrand" type="text" value="${i.brand||''}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
+      <div class="eb-ac" style="position:relative;margin-bottom:14px">
+        <input id="ebBrand" type="text" autocomplete="off" value="${i.brand||''}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+      </div>
+
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Estado del artículo</label>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px">
+        <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="radio" name="ebCondition" value="1000" /> Nuevo con etiquetas
+        </label>
+        <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="radio" name="ebCondition" value="1500" /> Nuevo sin etiquetas
+        </label>
+        <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="radio" name="ebCondition" value="1750" /> Nuevo con defectos
+        </label>
+        <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="radio" name="ebCondition" value="3000" checked /> Usado
+        </label>
+      </div>
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Descripción del estado</label>
+      <input id="ebConditionDesc" type="text" maxlength="1000" placeholder="Ej: 9/10" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
 
       <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Descripción</label>
       <textarea id="ebDesc" rows="4" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:18px;font-family:var(--font);resize:vertical">${(i.title||'')}</textarea>
@@ -929,7 +949,9 @@ function openEbayExportModal(i, artId){
       kitType: modal.querySelector('#ebKitType').value,
       country: modal.querySelector('#ebCountry').value,
       sleeveLength: modal.querySelector('#ebSleeve').value,
-      mainColour: modal.querySelector('#ebColour').value
+      mainColour: modal.querySelector('#ebColour').value,
+      conditionId: modal.querySelector('input[name="ebCondition"]:checked').value,
+      conditionDescription: modal.querySelector('#ebConditionDesc').value
     };
 
     try{
@@ -999,6 +1021,7 @@ async function loadEbayAspects(modal, categoryId){
     'ebSleeve': ['Tipo de manga'],
     'ebColour': ['Color'],
     'ebCountry': ['País de origen'],
+    'ebBrand': ['Marca'],
   };
   const fallbackOptions = {
     'ebKitType': ['Home','Away','Third','Goalkeeper','Training'],
