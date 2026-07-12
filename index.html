@@ -827,8 +827,9 @@ function openEbayExportModal(i, artId){
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Talla</label>
-          <input id="ebSize" type="text" list="ebSizeList" value="${(i.size||'').replace(/"/g,'&quot;')}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
-          <datalist id="ebSizeList"></datalist>
+          <div class="eb-ac" style="position:relative">
+            <input id="ebSize" type="text" autocomplete="off" value="${(i.size||'').replace(/"/g,'&quot;')}" style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          </div>
         </div>
       </div>
 
@@ -843,25 +844,22 @@ function openEbayExportModal(i, artId){
       </select>
 
       <label id="ebClubLabel" style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Spanish Club</label>
-      <input id="ebClub" type="text" list="ebClubList" value="" placeholder="Ej: Barcelona, Real Madrid..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;margin-bottom:14px;font-family:var(--font)" />
-      <datalist id="ebClubList"></datalist>
+      <div class="eb-ac" style="position:relative;margin-bottom:14px">
+        <input id="ebClub" type="text" autocomplete="off" value="" placeholder="Ej: Barcelona, Real Madrid..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+      </div>
 
       <div style="display:flex;gap:12px;margin-bottom:14px">
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Kit Type</label>
-          <input id="ebKitType" type="text" list="ebKitTypeList" value="" placeholder="Ej: Home, Away..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
-          <datalist id="ebKitTypeList">
-            <option value="Home"></option>
-            <option value="Away"></option>
-            <option value="Third"></option>
-            <option value="Goalkeeper"></option>
-            <option value="Training"></option>
-          </datalist>
+          <div class="eb-ac" style="position:relative">
+            <input id="ebKitType" type="text" autocomplete="off" value="" placeholder="Ej: Home, Away..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          </div>
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">País de origen</label>
-          <input id="ebCountry" type="text" list="ebCountryList" value="" placeholder="Ej: Spain, England..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
-          <datalist id="ebCountryList"></datalist>
+          <div class="eb-ac" style="position:relative">
+            <input id="ebCountry" type="text" autocomplete="off" value="" placeholder="Ej: Spain, England..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          </div>
         </div>
       </div>
 
@@ -869,16 +867,15 @@ function openEbayExportModal(i, artId){
         <input id="ebMatchWorn" type="checkbox" style="display:none">
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Sleeve Length</label>
-          <input id="ebSleeve" type="text" list="ebSleeveList" value="" placeholder="Ej: Short Sleeves..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
-          <datalist id="ebSleeveList">
-            <option value="Short Sleeves"></option>
-            <option value="Long Sleeves"></option>
-          </datalist>
+          <div class="eb-ac" style="position:relative">
+            <input id="ebSleeve" type="text" autocomplete="off" value="" placeholder="Ej: Short Sleeves..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          </div>
         </div>
         <div style="flex:1">
           <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Color</label>
-          <input id="ebColour" type="text" list="ebColourList" value="" placeholder="Ej: Blue, Multi..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
-          <datalist id="ebColourList"></datalist>
+          <div class="eb-ac" style="position:relative">
+            <input id="ebColour" type="text" autocomplete="off" value="" placeholder="Ej: Blue, Multi..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;font-family:var(--font)" />
+          </div>
         </div>
       </div>
 
@@ -962,6 +959,38 @@ function openEbayExportModal(i, artId){
   });
 }
 
+function attachAutocomplete(inputEl, getOptions){
+  if(inputEl._acAttached) return;
+  inputEl._acAttached = true;
+  const box = document.createElement('div');
+  box.style.cssText = 'position:absolute;top:100%;left:0;right:0;z-index:50;max-height:180px;overflow-y:auto;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;margin-top:2px;display:none';
+  inputEl.parentElement.appendChild(box);
+
+  function render(){
+    const opts = getOptions();
+    const q = inputEl.value.trim().toLowerCase();
+    const filtered = q ? opts.filter(o=>o.toLowerCase().includes(q)) : opts;
+    if(!filtered.length){ box.style.display='none'; return; }
+    box.innerHTML = filtered.slice(0,50).map(o=>
+      `<div class="eb-ac-item" style="padding:7px 10px;cursor:pointer;font-size:13px;color:var(--text)" onmousedown="event.preventDefault()">${o}</div>`
+    ).join('');
+    [...box.children].forEach((el,idx)=>{
+      el.addEventListener('mouseenter',()=>{ el.style.background='var(--bg2)'; });
+      el.addEventListener('mouseleave',()=>{ el.style.background=''; });
+      el.addEventListener('click',()=>{
+        inputEl.value = filtered[idx];
+        box.style.display='none';
+        inputEl.dispatchEvent(new Event('change'));
+      });
+    });
+    box.style.display='block';
+  }
+
+  inputEl.addEventListener('focus', render);
+  inputEl.addEventListener('input', render);
+  inputEl.addEventListener('blur', ()=> setTimeout(()=>{ box.style.display='none'; }, 150));
+}
+
 async function loadEbayAspects(modal, categoryId){
   const fieldMap = {
     'ebClub': ['Club','Equipo'],
@@ -971,6 +1000,12 @@ async function loadEbayAspects(modal, categoryId){
     'ebColour': ['Color'],
     'ebCountry': ['País de origen'],
   };
+  const fallbackOptions = {
+    'ebKitType': ['Home','Away','Third','Goalkeeper','Training'],
+    'ebSleeve': ['Short Sleeves','Long Sleeves'],
+  };
+  modal._ebAspectValues = modal._ebAspectValues || {};
+
   let statusEl = modal.querySelector('#ebAspectsStatus');
   if(!statusEl){
     statusEl = document.createElement('div');
@@ -979,15 +1014,21 @@ async function loadEbayAspects(modal, categoryId){
     modal.querySelector('#ebCategory').insertAdjacentElement('afterend', statusEl);
   }
   statusEl.textContent = 'Cargando valores de eBay...';
+
+  Object.keys(fieldMap).forEach(id=>{
+    const inputEl = modal.querySelector('#'+id);
+    if(!inputEl) return;
+    modal._ebAspectValues[id] = fallbackOptions[id] || [];
+    attachAutocomplete(inputEl, ()=> modal._ebAspectValues[id] || []);
+  });
+
   try{
     const res = await fetch(EBAY_BRIDGE_URL+'/aspects?categoryId='+encodeURIComponent(categoryId));
     const data = await res.json();
     if(!data.success) throw new Error(data.message || JSON.stringify(data));
     Object.entries(fieldMap).forEach(([id, aspectNames])=>{
-      const listEl = modal.querySelector('#'+id+'List');
-      if(!listEl) return;
       const aspect = data.aspects.find(a=>aspectNames.includes(a.name));
-      listEl.innerHTML = aspect ? aspect.values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}"></option>`).join('') : '';
+      if(aspect) modal._ebAspectValues[id] = aspect.values;
     });
     statusEl.textContent = '';
   }catch(e){
