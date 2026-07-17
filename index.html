@@ -18,6 +18,30 @@
 .filter-clear:hover{color:var(--text)}
 </style>
 <style>
+.msg-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.msg-item:hover{background:var(--bg3)}
+.msg-item.active{background:rgba(0,160,0,0.08);border-left:2px solid var(--green)}
+.msg-item-name{font-size:13px;font-weight:600;color:var(--text)}
+.msg-item-item{font-size:11px;color:var(--muted2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-item-preview{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-item-time{font-size:10px;color:var(--muted);float:right}
+.msg-thread-header{padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;justify-content:space-between;align-items:center}
+.msg-bubbles{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:70%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.4;word-wrap:break-word}
+.bubble.theirs{align-self:flex-start;background:var(--bg3);color:var(--text);border-bottom-left-radius:4px}
+.bubble.mine{align-self:flex-end;background:var(--green3);color:#dfffe0;border-bottom-right-radius:4px}
+.bubble-time{font-size:9px;color:var(--muted);margin-top:3px}
+.msg-composer{border-top:1px solid var(--border);background:var(--bg2);padding:12px 16px}
+.quick-replies{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.quick-reply-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted2);font-size:11px;padding:5px 10px;border-radius:14px;cursor:pointer;font-family:var(--font)}
+.quick-reply-btn:hover{color:var(--text);border-color:var(--green2)}
+.msg-input-row{display:flex;gap:8px}
+.msg-input-row textarea{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;resize:none;min-height:38px;max-height:100px}
+.msg-send-btn{background:var(--green2);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font)}
+.msg-send-btn:hover{background:var(--green3)}
+.msg-send-btn:disabled{background:var(--bg3);color:var(--muted);cursor:not-allowed}
+</style>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;color:inherit}
 :root{--bg:#0a0a0a;--bg2:#141414;--bg3:#1c1c1c;--bg4:#242424;--border:#2a2a2a;--border2:#333;--text:#e8e8e8;--muted:#666;--muted2:#888;--green:#00c853;--green2:#00a000;--green3:#004d00;--red:#f44336;--amber:#ff9800;--blue:#2196f3;--purple:#ce93d8;--font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace}
@@ -151,6 +175,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <div class="nav-item" onclick="goPage('chats',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ofertas recibidas
         <span class="nav-badge" id="chatBadge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="goPage('mensajes',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>Mensajes
+        <span class="nav-badge" id="msgBadge" style="display:none">0</span>
       </div>
       <div class="nav-item" onclick="goPage('articulos',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/></svg>Artículos
@@ -319,6 +347,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         </div>
         <div style="font-size:12px;color:var(--muted2);margin-bottom:18px">Solo chats donde el comprador ha enviado una oferta de precio.</div>
         <div id="chatsList"><div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Sincroniza para ver las ofertas recibidas</div></div>
+      </div>
+
+      <!-- MENSAJES -->
+      <div class="page" id="page-mensajes">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <span style="font-size:16px;font-weight:600">Mensajes</span>
+          <span style="font-size:11px;color:var(--muted)" id="msgSendStatus"></span>
+        </div>
+        <div id="msgLayout" style="display:grid;grid-template-columns:280px 1fr;gap:0;height:calc(100vh - 140px);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <div id="msgList" style="border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2)"></div>
+          <div id="msgThreadWrap" style="display:flex;flex-direction:column;background:var(--bg)">
+            <div id="msgThreadEmpty" style="margin:auto;color:var(--muted);font-size:13px">Selecciona una conversación</div>
+          </div>
+        </div>
       </div>
 
       <!-- CONFIG -->
@@ -1355,6 +1397,148 @@ function renderChats(data){
     </div>`).join(''):'<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No hay ofertas pendientes 🎉</div>';
 }
 
+// ---- MENSAJES (chat completo + respuestas rápidas + envío real) ----
+const EXTENSION_ID = 'agpmpeobldejokajhciammcgfjhnpbdp';
+let msgChats = [];
+let msgSelectedId = null;
+
+function getQuickReplies(){
+  try { return JSON.parse(localStorage.getItem('tkr_quick_replies')) || DEFAULT_QUICK_REPLIES; }
+  catch(e){ return DEFAULT_QUICK_REPLIES; }
+}
+const DEFAULT_QUICK_REPLIES = [
+  '¡Hola! Sí, sigue disponible 😊',
+  'Gracias por tu interés, ¡lo tienes reservado!',
+  'Lo envío mañana sin falta 📦',
+  'Perdona la tardanza, te contesto ahora mismo',
+  '¿Te interesa con descuento si llevas 2 artículos?'
+];
+function saveQuickReplies(list){ localStorage.setItem('tkr_quick_replies', JSON.stringify(list)); }
+
+function renderMensajes(data){
+  msgChats = (data.chats || []).slice().sort((a,b)=> new Date(b.updatedAt) - new Date(a.updatedAt));
+  const badge = document.getElementById('msgBadge');
+  badge.textContent = msgChats.length;
+  badge.style.display = msgChats.length>0 ? 'inline' : 'none';
+
+  const list = document.getElementById('msgList');
+  if(!msgChats.length){
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px 16px;font-size:12px">Sincroniza para ver tus chats</div>';
+    return;
+  }
+  list.innerHTML = msgChats.map(c=>{
+    const last = (c.messages||[])[c.messages.length-1];
+    const preview = last ? (last.isMine?'Tú: ':'') + last.body : '';
+    return `<div class="msg-item ${c.id===msgSelectedId?'active':''}" onclick="selectMsgChat('${c.id}')">
+      <div><span class="msg-item-name">${c.otherUserLogin}</span><span class="msg-item-time">${fmtDate(c.updatedAt)}</span></div>
+      <div class="msg-item-item">${c.itemTitle||''}</div>
+      <div class="msg-item-preview">${preview}</div>
+    </div>`;
+  }).join('');
+
+  if(msgSelectedId && msgChats.some(c=>String(c.id)===String(msgSelectedId))){
+    renderMsgThread(msgSelectedId);
+  }
+}
+
+function selectMsgChat(id){
+  msgSelectedId = id;
+  document.querySelectorAll('#msgList .msg-item').forEach(el=>el.classList.remove('active'));
+  renderMensajes({chats: msgChats}); // reaplica el resaltado en la lista
+  renderMsgThread(id);
+}
+
+function renderMsgThread(id){
+  const chat = msgChats.find(c=>String(c.id)===String(id));
+  const wrap = document.getElementById('msgThreadWrap');
+  if(!chat){ wrap.innerHTML = '<div id="msgThreadEmpty" style="margin:auto;color:var(--muted);font-size:13px">Selecciona una conversación</div>'; return; }
+
+  const bubbles = (chat.messages||[]).map(m=>`
+    <div class="bubble ${m.isMine?'mine':'theirs'}">
+      ${escapeHtml(m.body)}
+      <div class="bubble-time">${m.createdAt?new Date(m.createdAt).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}</div>
+    </div>`).join('');
+
+  const quick = getQuickReplies();
+  const quickBtns = quick.map((q,i)=>`<button class="quick-reply-btn" onclick="fillQuickReply(${i})" title="${escapeHtml(q)}">${escapeHtml(q.length>28?q.slice(0,28)+'…':q)}</button>`).join('');
+
+  wrap.innerHTML = `
+    <div class="msg-thread-header">
+      <div>
+        <div style="font-weight:600;font-size:14px">${chat.otherUserLogin} <span style="font-weight:400;color:var(--muted2);font-size:12px">${chat.countryCode&&chat.countryCode!=='—'?flag(chat.countryCode):''} ${chat.location||''}</span></div>
+        <div style="font-size:11px;color:var(--muted2)">${chat.itemTitle||''}</div>
+      </div>
+      <div>
+        ${chat.itemPath?`<a href="https://www.vinted.es${chat.itemPath}" target="_blank" class="btn" style="font-size:11px;padding:5px 10px">Ver artículo ↗</a>`:''}
+        <a href="https://www.vinted.es/inbox/${chat.id}" target="_blank" class="btn" style="font-size:11px;padding:5px 10px">Ver en Vinted ↗</a>
+      </div>
+    </div>
+    <div class="msg-bubbles" id="msgBubblesArea">${bubbles || '<div style="color:var(--muted);text-align:center;margin-top:20px;font-size:12px">Sin mensajes de texto detectados en este hilo — puede que solo haya ofertas</div>'}</div>
+    <div class="msg-composer">
+      <div class="quick-replies">
+        ${quickBtns}
+        <button class="quick-reply-btn" onclick="manageQuickReplies()" style="color:var(--green)">✏️ Editar respuestas</button>
+      </div>
+      <div class="msg-input-row">
+        <textarea id="msgComposeText" placeholder="Escribe o elige una respuesta rápida..."></textarea>
+        <button class="msg-send-btn" id="msgSendBtn" onclick="sendMsgReply('${chat.id}')">Enviar</button>
+      </div>
+    </div>`;
+  const area = document.getElementById('msgBubblesArea');
+  if(area) area.scrollTop = area.scrollHeight;
+}
+
+function fillQuickReply(i){
+  const q = getQuickReplies()[i];
+  const box = document.getElementById('msgComposeText');
+  if(box){ box.value = q; box.focus(); }
+}
+
+function manageQuickReplies(){
+  const current = getQuickReplies();
+  const text = window.prompt('Una respuesta rápida por línea:', current.join('\n'));
+  if(text === null) return;
+  const list = text.split('\n').map(s=>s.trim()).filter(Boolean);
+  saveQuickReplies(list);
+  if(msgSelectedId) renderMsgThread(msgSelectedId);
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function sendMsgReply(conversationId){
+  const box = document.getElementById('msgComposeText');
+  const text = (box?.value||'').trim();
+  if(!text) return;
+  const btn = document.getElementById('msgSendBtn');
+  const statusEl = document.getElementById('msgSendStatus');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  statusEl.textContent = '';
+
+  if(!window.chrome || !chrome.runtime || !chrome.runtime.sendMessage){
+    statusEl.textContent = 'No se detecta la extensión (¿instalada y activa?)';
+    btn.disabled = false; btn.textContent = 'Enviar';
+    return;
+  }
+  chrome.runtime.sendMessage(EXTENSION_ID, { action:'sendVintedMessage', conversationId, text }, (resp)=>{
+    btn.disabled = false; btn.textContent = 'Enviar';
+    if(chrome.runtime.lastError){
+      statusEl.textContent = 'Error: ' + chrome.runtime.lastError.message;
+      return;
+    }
+    if(resp && resp.ok){
+      statusEl.textContent = 'Enviado ✔';
+      box.value = '';
+      // Añadimos el mensaje al hilo localmente para verlo al instante (se confirmará del todo en el próximo sync)
+      const chat = msgChats.find(c=>String(c.id)===String(conversationId));
+      if(chat){ chat.messages = chat.messages||[]; chat.messages.push({id:'local_'+Date.now(), body:text, isMine:true, createdAt:new Date().toISOString()}); renderMsgThread(conversationId); }
+    } else {
+      statusEl.textContent = 'Error al enviar: ' + (resp?.error || 'desconocido');
+    }
+  });
+}
+
 function renderAll(data){
   // Normalize order IDs
   (data.orders||[]).forEach(function(o){
@@ -1373,6 +1557,7 @@ function renderAll(data){
   renderCompradores(data);
   renderPipeline(data);
   renderChats(data);
+  renderMensajes(data);
   renderArticulos(data);
   document.getElementById('connBadge').classList.add('ok');
   document.getElementById('pulseDot').classList.add('on');
