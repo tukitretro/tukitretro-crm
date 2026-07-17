@@ -761,6 +761,11 @@ function renderArticulosGrid(items){
 
 // ---- Exportar a eBay ----
 const EBAY_BRIDGE_URL = 'https://tukitretro-ebay-bridge.tukitretro.workers.dev';
+// Token de solo lectura (fine-grained, permiso "Contents: Read-only", limitado a este repo).
+// Necesario en cuanto el repo pase a privado, porque si no las dos lecturas de data.json de abajo darán 404.
+// Generarlo en https://github.com/settings/tokens?type=beta y pegarlo aquí antes de poner el repo en privado.
+const GITHUB_READ_TOKEN = 'PEGA_AQUI_TU_TOKEN_DE_SOLO_LECTURA';
+const GH_HEADERS = { 'Accept': 'application/vnd.github.v3+json', 'Authorization': 'Bearer ' + GITHUB_READ_TOKEN };
 
 function getArticuloId(i){
   const stableKey = (i.title || '').trim().toLowerCase();
@@ -1688,7 +1693,7 @@ async function loadData() {
   // Siempre comprobar GitHub (fuente de verdad), incluso si ya hay localStorage
   try {
     const res = await fetch('https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json', {
-      headers: { 'Accept': 'application/vnd.github.v3+json' }
+      headers: GH_HEADERS
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const meta = await res.json();
@@ -2820,7 +2825,7 @@ window.addEventListener('tkr_sync', function() {
   }
   // Siempre comprobar GitHub (fuente de verdad), incluso si ya hay localStorage
   fetch('https://api.github.com/repos/tukitretro/tukitretro-crm/contents/data.json', {
-    headers: { 'Accept': 'application/vnd.github.v3+json' }
+    headers: GH_HEADERS
   }).then(function(res) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.json();
