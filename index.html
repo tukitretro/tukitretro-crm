@@ -1812,18 +1812,27 @@ async function syncEbaySales(){
     if(!raw) return;
     const d = JSON.parse(raw);
     d.orders = d.orders || [];
-    const existingIds = new Set(d.orders.map(o=>String(o.id)));
-    let added = 0;
+    const byId = new Map(d.orders.map(o=>[String(o.id), o]));
+    let added = 0, updated = 0;
     data.orders.forEach(eo=>{
       const id = 'ebay-'+eo.orderId;
-      if(existingIds.has(id)) return;
       const firstItem = (eo.items&&eo.items[0])||{};
+      const existing = byId.get(id);
+      if(existing){
+        if(existing.status !== eo.status || existing.isCancelled !== !!eo.isCancelled){
+          existing.status = eo.status || existing.status;
+          existing.isCancelled = !!eo.isCancelled;
+          updated++;
+        }
+        return;
+      }
       d.orders.push({
         id: id,
         title: firstItem.title || (eo.titles&&eo.titles[0]) || 'Venta eBay',
         price: firstItem.price || eo.subtotal || eo.total || 0,
         shippingCost: eo.shippingCost || 0,
-        status: 'Completado',
+        status: eo.status || 'Preparando',
+        isCancelled: !!eo.isCancelled,
         platform: 'ebay',
         createdAt: eo.createdTime ? new Date(new Date(eo.createdTime).getTime() + 14*24*60*60*1000).toISOString() : null,
         saleDate: eo.createdTime,
@@ -1836,7 +1845,7 @@ async function syncEbaySales(){
       });
       added++;
     });
-    if(added>0){
+    if(added>0 || updated>0){
       localStorage.setItem('tkr_data', JSON.stringify(d));
       renderAll(d);
     }
