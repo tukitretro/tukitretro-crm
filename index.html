@@ -279,7 +279,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         </div>
         <div class="card" style="padding:0;overflow:hidden">
           <table class="tbl">
-            <thead><tr><th>Artículo</th><th>Comprador</th><th>País</th><th>Plataforma</th><th>Fecha cobro</th><th>Precio venta</th><th>Coste</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
+            <thead><tr><th>Artículo</th><th>Comprador</th><th>País</th><th>Plataforma</th><th>Fecha venta</th><th>Precio venta</th><th>Coste</th><th>Margen</th><th>Estado</th><th></th></tr></thead>
             <tbody id="ventasBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Sincroniza para ver tus ventas</td></tr></tbody>
           </table>
         </div>
@@ -1237,10 +1237,10 @@ function renderVentasRows(sorted, tbody){
     }
     tr.appendChild(tdPlatform);
 
-    // Date - createdAt = fecha cobro (payment released), saleDate = fecha venta
+    // Date - saleDate = fecha venta (invoice date); createdAt (fecha cobro) no longer shown here
     const tdDate=document.createElement('td');
     tdDate.style.color='var(--muted2)';
-    tdDate.textContent=o.createdAt?fmtDate(o.createdAt):'—';
+    tdDate.textContent=o.saleDate?fmtDate(o.saleDate):'—';
     tr.appendChild(tdDate);
 
     // Price
@@ -1667,7 +1667,7 @@ function openSaleModal(orderId) {
   buyerEl.innerHTML = '';
   const buyerRows = [
     {label:'Comprador', value:(o.buyerLogin !== '—' ? o.buyerLogin : '—') + (o.buyerCountryCode && o.buyerCountryCode !== '—' ? '  ' + flag(o.buyerCountryCode) + ' ' + countryName(o.buyerCountryCode) : '')},
-    {label:'Fecha cobro', value:o.createdAt ? fmtDate(o.createdAt) : '—'},
+    {label:'Fecha venta', value:o.saleDate ? fmtDate(o.saleDate) : '—'},
     {label:'Estado', badge:getStatusBadge(o)},
   ];
   buyerRows.forEach(function(b) {
@@ -2943,7 +2943,6 @@ function mOpenSaleModal(o) {
     { label: 'Margen', val: margin !== null ? '<span style="color:'+(margin>=0?'#00c853':'#f44336')+';font-family:monospace;font-weight:600">'+mFmt(margin)+(marginPct!==null?' ('+marginPct+'%)':'')+'</span>' : '<span style="color:#333">—</span>' },
     { label: 'Comprador', val: (o.buyerLogin&&o.buyerLogin!=='—' ? o.buyerLogin : '—') + (o.buyerCountryCode&&o.buyerCountryCode!=='—' ? ' '+mFlag(o.buyerCountryCode) : '') },
     { label: 'Fecha venta', val: mFmtDate(o.saleDate) },
-    { label: 'Fecha cobro', val: mFmtDate(o.createdAt) },
     { label: 'Estado', val: mStatusBadge(o) },
   ];
 
