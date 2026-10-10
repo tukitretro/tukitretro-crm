@@ -128,11 +128,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .chat-head{display:flex;justify-content:space-between;margin-bottom:6px}
 .chat-user{font-weight:600;font-size:14px}
 .chat-time{font-size:11px;color:var(--muted)}
-.chat-shirt{font-size:12px;color:var(--muted2);margin-bottom:10px}
+.chat-shirt{font-size:14px;color:var(--muted2);margin-bottom:12px}
 .chat-offer{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.offer-pill{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;min-width:100px}
-.offer-pill .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
-.offer-pill .val{font-family:var(--mono);font-weight:600;font-size:14px}
+.offer-pill{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;min-width:150px}
+.offer-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.offer-pill .val{font-family:var(--mono);font-weight:700;font-size:24px}
+.offer-btn{display:inline-block;background:var(--bg2);border:1px solid var(--green3);color:var(--green);padding:12px 26px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;font-family:var(--font);transition:all .15s}
+.offer-btn:hover{background:rgba(0,160,0,.12)}
 .chat-actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;text-decoration:none;display:inline-block}
 .btn:hover{background:var(--bg4)}
@@ -1414,7 +1416,7 @@ function renderChats(data){
             <div class="offer-pill"><div class="lbl">Estado</div><div class="val" style="color:${sColor(t.offerStatus)}">${offerHtmlEsc(t.offerStatus)}</div></div>
           </div>
           <div class="chat-actions">
-            <a href="https://www.vinted.es/inbox/${t.id}" target="_blank" class="btn">Ver en Vinted ↗</a>
+            <a href="https://www.vinted.es/inbox/${t.id}" target="_blank" class="offer-btn">Ver en Vinted ↗</a>
           </div>
         </div>
       </div>
@@ -2367,18 +2369,19 @@ function invImprimir() {
 .m-offer-date { font-size: 11px; color: #444; }
 .m-offer-item { font-size: 12px; color: #555; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .m-offer-pills { display: flex; gap: 8px; margin-bottom: 10px; }
-.m-offer-pill { background: #1c1c1c; border-radius: 8px; padding: 8px 12px; flex: 1; }
-.m-offer-pill-label { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
-.m-offer-pill-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 14px; }
+.m-offer-pill { background: #1c1c1c; border-radius: 8px; padding: 10px 12px; flex: 1; }
+.m-offer-pill-label { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+.m-offer-pill-val { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 19px; }
 .m-offer-link {
   display: block;
   text-align: center;
   background: #1c1c1c;
   border: 1px solid #2a2a2a;
   border-radius: 8px;
-  padding: 9px;
-  font-size: 12px;
-  color: #888;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00c853;
   text-decoration: none;
 }
 .m-offer-link:active { background: #242424; }
