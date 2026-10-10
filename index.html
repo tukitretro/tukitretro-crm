@@ -1803,6 +1803,11 @@ window.addEventListener('tkr_sync',()=>{
 });
 
 async function syncEbaySales(){
+  await syncEbayOrders();
+  await syncEbayActiveTitles();
+}
+
+async function syncEbayOrders(){
   try{
     const res = await fetch(EBAY_BRIDGE_URL+'/sales?days=90');
     if(!res.ok) return;
@@ -1850,6 +1855,9 @@ async function syncEbaySales(){
       renderAll(d);
     }
   }catch(e){ console.log('eBay sync failed:', e.message); }
+}
+
+async function syncEbayActiveTitles(){
   try{
     const res2 = await fetch(EBAY_BRIDGE_URL+'/active-titles');
     if(!res2.ok) return;
@@ -1875,6 +1883,11 @@ async function syncEbaySales(){
 loadCosts();
 
 async function loadData() {
+  try { await loadDataCore(); }
+  finally { syncEbayActiveTitles(); }
+}
+
+async function loadDataCore() {
   const raw = localStorage.getItem('tkr_data');
   let local = null;
   if (raw) {
