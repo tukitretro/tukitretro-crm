@@ -803,7 +803,7 @@ function renderArticulosGrid(items){
 
 // ---- Exportar a eBay ----
 const EBAY_BRIDGE_URL = 'https://tukitretro-ebay-bridge.tukitretro.workers.dev';
-const GH_HEADERS = { 'Accept': 'application/vnd.github.v3+json' };
+const GH_HEADERS = { 'Accept': 'application/vnd.github.raw+json' };
 
 function getArticuloId(i){
   const stableKey = (i.title || '').trim().toLowerCase();
@@ -1886,9 +1886,7 @@ async function loadData() {
       headers: GH_HEADERS
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const meta = await res.json();
-    const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\n/g,''))));
-    const d = JSON.parse(decoded);
+    const d = await res.json();
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
         const localCosts = JSON.parse(localStorage.getItem('tkr_costs')||'{}');
@@ -3018,9 +3016,7 @@ window.addEventListener('tkr_sync', function() {
   }).then(function(res) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return res.json();
-  }).then(function(meta) {
-    const decoded = decodeURIComponent(escape(atob(meta.content.replace(/\n/g,''))));
-    const d = JSON.parse(decoded);
+  }).then(function(d) {
     if (d && d.syncedAt) {
       if (!local || d.syncedAt !== local.syncedAt) {
         const localCosts = JSON.parse(localStorage.getItem('tkr_costs')||'{}');
